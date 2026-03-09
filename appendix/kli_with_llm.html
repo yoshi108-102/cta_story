@@ -1,0 +1,170 @@
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans JP', sans-serif; line-height: 1.8; color: #222; max-width: 980px; margin: 0 auto; padding: 24px;">
+  <h1 style="font-size: 2rem; border-bottom: 3px solid #4f46e5; padding-bottom: 8px; margin-bottom: 20px;">
+    EDM 2025 論文まとめ
+  </h1>
+
+  <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;">
+    <h2 style="margin-top: 0; font-size: 1.2rem;">Using Large Multimodal Models to Extract Knowledge Components for Knowledge Tracing from Multimedia Question Information</h2>
+    <p style="margin: 8px 0 0 0;">
+      <strong>一言でいうと：</strong>
+      問題文・図・音声を含む教材コンテンツから、LLM/LMMがKnowledge Component（KC）を自動抽出し、
+      それをKnowledge Tracingに使うと、人手で付けたKCにかなり近い性能が出る、という論文です。
+    </p>
+  </div>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">1. この論文の背景</h2>
+  <p>
+    Intelligent Tutoring Systems（ITS）やKnowledge Tracing（KT）では、
+    「この問題はどの知識・スキルを問うているか」を表す <strong>Knowledge Components（KCs）</strong> が重要です。
+    ただし、従来はこのKC付与を人手で行うことが多く、コストが高く、AI生成教材や新規問題への展開が難しいという課題がありました。
+  </p>
+  <p>
+    そこで本論文は、<strong>問題コンテンツそのものからKCsを自動抽出できないか</strong> を検証しています。
+    特に、テキストだけでなく図や音声転写も含めた <strong>multimodal な問題情報</strong> を扱う点が特徴です。
+  </p>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">2. 何を提案したのか</h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 16px 0;">
+    <div style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: #fafafa;">
+      <h3 style="margin-top: 0;">Step 1</h3>
+      <p style="margin-bottom: 0;"><strong>教材コンテンツを解析</strong><br>HTML, 画像, 音声(mp3)を取り出して問題内容を再構成する。</p>
+    </div>
+    <div style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: #fafafa;">
+      <h3 style="margin-top: 0;">Step 2</h3>
+      <p style="margin-bottom: 0;"><strong>GPT-4oでKC候補を抽出</strong><br>各問題について、複数のKCを「名前＋説明」でzero-shot生成する。</p>
+    </div>
+    <div style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: #fafafa;">
+      <h3 style="margin-top: 0;">Step 3</h3>
+      <p style="margin-bottom: 0;"><strong>埋め込み＋クラスタリング</strong><br>意味の近いKC同士をまとめて、共通のKCタグとして使えるようにする。</p>
+    </div>
+    <div style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: #fafafa;">
+      <h3 style="margin-top: 0;">Step 4</h3>
+      <p style="margin-bottom: 0;"><strong>AFM / KTで評価</strong><br>人手KCと比べて、学習者成績予測に使えるかを性能比較する。</p>
+    </div>
+  </div>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">3. 手法のポイント</h2>
+  <ul>
+    <li>各問題に対して、GPT-4oへ「この問題を解くのに必要な知識要素を抽出せよ」と指示する。</li>
+    <li>出力形式はJSONで、各KCは <strong>短い名前</strong> と <strong>1文程度の説明</strong> を持つ。</li>
+    <li>同じ概念でも表現ゆれがあるため、説明文の埋め込みを計算し、<strong>意味ベースでクラスタリング</strong> する。</li>
+    <li>クラスタの代表名を、そのクラスタ内で最頻出の名前から決める。</li>
+  </ul>
+
+  <div style="background: #f8fafc; border-left: 4px solid #0f172a; padding: 14px 16px; margin: 18px 0; border-radius: 8px;">
+    <strong>重要な見方：</strong>
+    この論文は「LLMに直接KCラベルを吐かせて終わり」ではなく、
+    <strong>自然言語で出たKC候補を、後段でまとめ直して使えるタグ体系に変換している</strong> のがポイントです。
+  </div>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">4. データセット</h2>
+  <p>CMU DataShop の OLI 系データを中心に、次の5領域で評価しています。</p>
+  <ul>
+    <li>Statics</li>
+    <li>Computing</li>
+    <li>French</li>
+    <li>Biology</li>
+    <li>Psychology</li>
+  </ul>
+  <p>
+    音声付き問題では mp3 を文字起こしし、図や埋め込み画像も問題コンテンツに含めて扱っています。
+    つまり、テキストのみのKTではなく、<strong>マルチモーダルな教材内容を使ったKC抽出</strong> を目指しています。
+  </p>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">5. どう評価したか</h2>
+
+  <h3 style="font-size: 1.15rem;">5.1 AFM（Additive Factor Model）</h3>
+  <p>
+    KCが「学習者の正答傾向をどれだけうまく説明できるか」を見る評価です。
+    ここでは、人手KC・OpenAI埋め込みを使った自動KC・Sentence-T5-XXLを使った自動KCを比較しています。
+  </p>
+
+  <h3 style="font-size: 1.15rem;">5.2 Knowledge Tracing（AUC）</h3>
+  <p>
+    実際の成績予測性能を見る評価です。IRT, PFA, DAS3H, SAKT, DKT など複数モデルで比較しています。
+    特に PFA や DAS3H のような <strong>複数KCを活用しやすいモデル</strong> では、
+    自動抽出KCの有効性が見えやすい設計になっています。
+  </p>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">6. 主な結果</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr; gap: 14px; margin: 16px 0;">
+    <div style="background: #ecfeff; border: 1px solid #a5f3fc; border-radius: 12px; padding: 16px;">
+      <h3 style="margin-top: 0;">結果1：AFMでは人手KCとかなり近い</h3>
+      <p style="margin-bottom: 0;">
+        自動抽出KCは、人手で作られたKCに<strong>ほぼ匹敵</strong>し、一部データでは人手KCより良いスコアも示しました。
+        特に OpenAI の埋め込みを使ったクラスタリングは Sentence-T5-XXL より安定して強かったです。
+      </p>
+    </div>
+
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px;">
+      <h3 style="margin-top: 0;">結果2：KTでも概ね人手KCに近い</h3>
+      <p style="margin-bottom: 0;">
+        KTのAUC評価でも、自動抽出KCは人手KCと同等水準、あるいは一部モデル・一部領域で上回りました。
+        特に <strong>PFAでは3領域で人手KCを上回る</strong> と論文中で述べられています。
+      </p>
+    </div>
+
+    <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 16px;">
+      <h3 style="margin-top: 0;">結果3：複数KC表現が効いている可能性</h3>
+      <p style="margin-bottom: 0;">
+        著者らは、自動抽出KCが有効だった理由として、
+        1問に対して複数のKCを自然に付与できることを挙げています。
+        現実の問題は単一スキルではなく、複数の知識要素が絡むためです。
+      </p>
+    </div>
+  </div>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">7. この論文の読みどころ</h2>
+  <ol>
+    <li><strong>KCを人手で定義しなくてもよい可能性</strong><br>
+      教材内容があれば、zero-shotでそれなりに妥当なKC体系を作れる可能性を示している。
+    </li>
+    <li style="margin-top: 10px;"><strong>“問題内容ベース”でKCを作る発想</strong><br>
+      従来の「履歴データから統計的に当てる」だけでなく、問題文・図・音声というコンテンツ側を見ている。
+    </li>
+    <li style="margin-top: 10px;"><strong>Explainabilityとの相性</strong><br>
+      KCが自然言語説明付きで出るので、単なる latent state より人間に解釈しやすい。
+    </li>
+    <li style="margin-top: 10px;"><strong>新規問題・低データ環境への広がり</strong><br>
+      既存の問題履歴が少ないときでも、コンテンツからKCを立てられるのは強い。
+    </li>
+  </ol>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">8. 限界</h2>
+  <ul>
+    <li>クラスタ数の決定がややヒューリスティックで、計算資源制約にも影響されている。</li>
+    <li>AFMは大規模データでメモリ負荷が高く、Biology/Psychologyでは実施できなかった。</li>
+    <li>深層KTモデルの多くは「1問1KC」寄りの設計で、複数KCの恩恵を十分活かしきれていない。</li>
+    <li>抽出されたKCの教育学的妥当性そのものを、人間評価で深く検証した論文ではない。</li>
+  </ul>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">9. あなたの関心に引き寄せると</h2>
+  <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 18px;">
+    <p style="margin-top: 0;">
+      この論文は、<strong>「インタビューや観察から得た自然言語・マルチモーダル情報を、学習支援や技能分析に使える知識単位へ変換する」</strong>
+      という発想にかなり近いです。
+    </p>
+    <ul style="margin-bottom: 0;">
+      <li>学習者発話や作業記録からKC候補を切り出す</li>
+      <li>自然言語の記述を埋め込みでまとめる</li>
+      <li>クラスタを「つまずきの型」「判断ポイントの型」として再利用する</li>
+    </ul>
+    <p style="margin-bottom: 0; margin-top: 12px;">
+      つまり、KCを固定ラベルとして最初から人手設計するのではなく、
+      <strong>言語化された断片から半自動で構成していく</strong> ワークフローの先行例として読むとかなり参考になります。
+    </p>
+  </div>
+
+  <h2 style="font-size: 1.4rem; margin-top: 28px;">10. まとめ</h2>
+  <p>
+    この論文のコアメッセージは、
+    <strong>「Knowledge Componentsは、専門家が手で全部付けなくても、LMMが問題内容からかなり実用的に抽出できる」</strong>
+    という点です。
+  </p>
+  <p>
+    特に、図や音声を含む教材でも扱えること、
+    そしてKT/AFMの性能面で人手KCに迫ることを示したのが価値です。
+    教育だけでなく、技能継承や作業知識の構造化にも応用の余地がある論文です。
+  </p>
+</div>
