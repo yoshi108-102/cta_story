@@ -35,10 +35,11 @@ _testmain.go
 .DS_Store
 
 ##other
-#node_modules/
+node_modules/
 #bower_components/
 .tmp
 #.sass-cache
+dist/
 #builds/**/images/*
 #*.ogg
 #*.mp3
@@ -48,3 +49,4 @@ _testmain.go
 *.psd
 .env*
 !.env.example
+!.env.exmaple
