@@ -24,6 +24,11 @@ export interface UpdateNodeInput {
   note: string;
 }
 
+export interface AddRootTaskStepInput {
+  label: string;
+  note: string;
+}
+
 export const createSeedTree = (treeId: string): TreeDraft => {
   const now = new Date().toISOString();
 
@@ -41,19 +46,19 @@ export const createSeedTree = (treeId: string): TreeDraft => {
         createdAt: now,
       },
       {
+        id: "n-root-2",
+        parentId: null,
+        kind: "task_step",
+        label: "矯正条件設定",
+        note: "Task Diagram: Step 2",
+        createdAt: now,
+      },
+      {
         id: "n-101",
         parentId: "n-root",
         kind: "cognitive_demand",
         label: "曲がりの異常兆候を早期検知する必要がある",
         note: "見逃すと後工程で不良化する",
-        createdAt: now,
-      },
-      {
-        id: "n-102",
-        parentId: null,
-        kind: "cognitive_demand",
-        label: "入口材曲がり評価が担当者依存になっている",
-        note: "未接続サンプル。root配下へ接続可能",
         createdAt: now,
       },
     ],
@@ -125,6 +130,49 @@ export const addNode = (tree: TreeDraft, input: AddNodeInput): TreeDraft => {
   };
 };
 
+export const addRootTaskStep = (
+  tree: TreeDraft,
+  input: AddRootTaskStepInput,
+): TreeDraft => {
+  const label = sanitizeText(input.label, NODE_LABEL_MAX);
+  const note = sanitizeText(input.note, NODE_NOTE_MAX);
+
+  if (!label) {
+    throw new Error("Label is required.");
+  }
+
+  const newNode: TreeNode = {
+    id: toNodeId(),
+    parentId: null,
+    kind: "task_step",
+    label,
+    note,
+    createdAt: new Date().toISOString(),
+  };
+
+  return {
+    ...tree,
+    rootNodeId: tree.rootNodeId || newNode.id,
+    nodes: [...tree.nodes, newNode],
+  };
+};
+
+export const setStartRootNode = (tree: TreeDraft, rootNodeId: string): TreeDraft => {
+  const node = getNodeById(tree, rootNodeId);
+  if (!node) {
+    throw new Error("Root node was not found.");
+  }
+
+  if (node.parentId !== null || node.kind !== "task_step") {
+    throw new Error("開始ノードには root の task_step を指定してください。");
+  }
+
+  return {
+    ...tree,
+    rootNodeId,
+  };
+};
+
 export const updateNode = (tree: TreeDraft, input: UpdateNodeInput): TreeDraft => {
   const target = getNodeById(tree, input.nodeId);
   if (!target) {
@@ -135,8 +183,13 @@ export const updateNode = (tree: TreeDraft, input: UpdateNodeInput): TreeDraft =
     throw new Error("Node kind is invalid.");
   }
 
-  if (target.id === tree.rootNodeId && input.kind !== "task_step") {
-    throw new Error("Root node must be task_step.");
+  const isRootTaskStep = target.parentId === null && target.kind === "task_step";
+  if (isRootTaskStep && input.kind !== "task_step") {
+    throw new Error("Task Diagram 上の root task_step は種別変更できません。");
+  }
+
+  if (target.parentId !== null && input.kind === "task_step") {
+    throw new Error("task_step は root ノードとしてのみ作成できます。");
   }
 
   const parent = target.parentId ? getNodeById(tree, target.parentId) : null;
@@ -190,8 +243,8 @@ export const attachExistingNode = (
     throw new Error("Node was not found.");
   }
 
-  if (target.id === tree.rootNodeId) {
-    throw new Error("Root node cannot be attached.");
+  if (target.parentId === null && target.kind === "task_step") {
+    throw new Error("Task Diagram の root task_step は接続先として変更できません。");
   }
 
   if (target.parentId) {
@@ -226,7 +279,13 @@ export const getChildren = (tree: TreeDraft, parentId: string): TreeNode[] => {
 
 export const getUnattachedNodes = (tree: TreeDraft): TreeNode[] => {
   return tree.nodes
-    .filter((node) => node.parentId === null && node.id !== tree.rootNodeId)
+    .filter((node) => node.parentId === null && node.kind !== "task_step")
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+};
+
+export const getRootTaskSteps = (tree: TreeDraft): TreeNode[] => {
+  return tree.nodes
+    .filter((node) => node.parentId === null && node.kind === "task_step")
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 };
 
@@ -267,9 +326,10 @@ export const getEditableKinds = (tree: TreeDraft, nodeId: string): NodeKind[] =>
 
   const parent = node.parentId ? getNodeById(tree, node.parentId) : null;
   const children = tree.nodes.filter((item) => item.parentId === node.id);
+  const isRootTaskStep = node.parentId === null && node.kind === "task_step";
 
   return nodeKinds.filter((candidate) => {
-    if (node.id === tree.rootNodeId && candidate !== "task_step") {
+    if (isRootTaskStep && candidate !== "task_step") {
       return false;
     }
 
@@ -314,10 +374,6 @@ export const isTreeDraft = (value: unknown): value is TreeDraft => {
 };
 
 export const parseTreeDraft = (value: unknown): TreeDraft | null => {
-  if (isTreeDraft(value)) {
-    return value;
-  }
-
   if (typeof value !== "object" || value === null) {
     return null;
   }
@@ -362,14 +418,34 @@ export const parseTreeDraft = (value: unknown): TreeDraft | null => {
     });
   }
 
-  if (!nodes.some((node) => node.id === tree.rootNodeId)) {
+  const rootFromPayload = nodes.find((node) => node.id === tree.rootNodeId);
+  const firstRootTaskStep = nodes.find((node) => node.parentId === null && node.kind === "task_step");
+  const effectiveRootNodeId = rootFromPayload?.id ?? firstRootTaskStep?.id;
+
+  if (!effectiveRootNodeId) {
     return null;
   }
+
+  const normalizedNodes = nodes.map((node) => {
+    if (node.id !== effectiveRootNodeId) {
+      return node;
+    }
+
+    if (node.parentId === null && node.kind === "task_step") {
+      return node;
+    }
+
+    return {
+      ...node,
+      parentId: null,
+      kind: "task_step" as NodeKind,
+    };
+  });
 
   return {
     treeId: tree.treeId,
     title: tree.title,
-    rootNodeId: tree.rootNodeId,
-    nodes,
+    rootNodeId: effectiveRootNodeId,
+    nodes: normalizedNodes,
   };
 };

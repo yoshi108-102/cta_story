@@ -106,6 +106,35 @@ ul {
   gap: 12px;
 }
 
+.task-root-list {
+  display: grid;
+  gap: 8px;
+}
+
+.task-root-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.task-root-item.selected {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.task-root-tags {
+  display: inline-flex;
+  gap: 6px;
+}
+
 .editor-grid {
   display: grid;
   gap: 12px;

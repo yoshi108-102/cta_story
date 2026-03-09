@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学習者のつまずき起点で専門家の説明を引き出す手法サーベイ</title>
+    <style>
+        :root {
+            --bg: #f7f9fc;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --line: #dbe3ee;
+            --accent: #2563eb;
+            --accent-soft: #eff6ff;
+            --warn: #b45309;
+            --good: #065f46;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans",
+                "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.75;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 2rem;
+            line-height: 1.3;
+        }
+
+        h2 {
+            margin-top: 40px;
+            margin-bottom: 12px;
+            font-size: 1.4rem;
+            border-left: 5px solid var(--accent);
+            padding-left: 12px;
+        }
+
+        h3 {
+            margin-top: 28px;
+            margin-bottom: 10px;
+            font-size: 1.08rem;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+
+        .lead {
+            font-size: 1.03rem;
+            color: var(--muted);
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.86rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            margin: 8px 0 8px 1.2em;
+            padding: 0;
+        }
+
+        li {
+            margin: 6px 0;
+        }
+
+        .pros {
+            color: var(--good);
+            font-weight: 600;
+        }
+
+        .cons {
+            color: var(--warn);
+            font-weight: 600;
+        }
+
+        .quote {
+            background: #f8fafc;
+            border-left: 4px solid #94a3b8;
+            padding: 14px 16px;
+            border-radius: 10px;
+            color: #334155;
+            margin: 12px 0;
+        }
+
+        .paper {
+            border-top: 1px dashed var(--line);
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .paper:first-child {
+            border-top: none;
+            padding-top: 0;
+            margin-top: 0;
+        }
+
+        .small {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.92em;
+        }
+
+        .workflow {
+            background: #f8fbff;
+            border: 1px solid #cfe0ff;
+            border-radius: 16px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+
+        .footer {
+            margin-top: 48px;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <section class="hero">
+            <h1>学習者のつまずき起点で、専門家の説明を引き出すための理論・手法サーベイ</h1>
+            <p class="lead">
+                目的は、「学習者がどこで詰まったか」を起点にし、その困難を専門家に解かせ、
+                最終的に知識カード・質問テンプレート・支援システム設計へ落とし込むための言語化支援を行うこと。
+                ここでは Simulated/Stimulated Recall を除外し、それ以外の近い理論・手法を整理する。
+            </p>
+        </section>
+
+        <section>
+            <h2>1. 結論サマリ</h2>
+            <div class="card">
+                <p>
+                    今回の目的に最も近いのは、単一の完成済み手法というよりも、以下の3層を組み合わせる設計である。
+                </p>
+                <ul>
+                    <li><strong>つまずきの発見：</strong> <code>Decoding the Disciplines</code> の <strong>bottleneck</strong>
+                        という考え方</li>
+                    <li><strong>専門家の認知の外化：</strong> <code>Cognitive Apprenticeship</code></li>
+                    <li><strong>困難の分解・構造化：</strong> <code>Knowledge Components</code> / <code>KLI</code></li>
+                </ul>
+                <p>
+                    つまり、<strong>学習者の困難を bottleneck として抽出し</strong>、
+                    <strong>専門家にその突破のしかたをモデリングしてもらい</strong>、
+                    それを <strong>知識要素単位に分解</strong> する、という構成がもっとも筋がよい。
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. 候補理論の比較</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="tag">最有力 1</div>
+                    <h3>Decoding the Disciplines</h3>
+                    <p>
+                        学習者が「どこで止まるか」を <strong>bottleneck</strong> として特定し、
+                        その箇所を専門家に「どう考えて突破しているか」説明させる枠組み。
+                    </p>
+                    <p class="pros">向いている点</p>
+                    <ul>
+                        <li>学習者のつまずき起点で始めやすい</li>
+                        <li>専門家説明への橋渡しが自然</li>
+                        <li>教育実装に落としやすい</li>
+                    </ul>
+                    <p class="cons">弱い点</p>
+                    <ul>
+                        <li>現場技能の微細な知覚判断をそのままは拾い切れないことがある</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="tag">最有力 2</div>
+                    <h3>Cognitive Apprenticeship</h3>
+                    <p>
+                        専門家の見えない認知過程を <strong>modeling / coaching / scaffolding / fading</strong>
+                        によって可視化し、学習者に橋渡しする教育理論。
+                    </p>
+                    <p class="pros">向いている点</p>
+                    <ul>
+                        <li>暗黙的な判断を言語化する理論的支柱になる</li>
+                        <li>熟練者の説明設計に強い</li>
+                        <li>支援システムや教育設計に接続しやすい</li>
+                    </ul>
+                    <p class="cons">弱い点</p>
+                    <ul>
+                        <li>「どこで学習者が詰まるか」を見つける専用手法ではない</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="tag">最有力 3</div>
+                    <h3>Knowledge Components / KLI</h3>
+                    <p>
+                        学習課題を、個別の知識要素・判断要素・技能要素へ分解するための枠組み。
+                        学習者の困難を「どの要素が欠けているか」に落としやすい。
+                    </p>
+                    <p class="pros">向いている点</p>
+                    <ul>
+                        <li>質問設計・知識カード設計・評価設計に強い</li>
+                        <li>つまずきを細かい要素へ分解しやすい</li>
+                    </ul>
+                    <p class="cons">弱い点</p>
+                    <ul>
+                        <li>困難抽出そのものより、抽出後の構造化で真価を発揮する</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 主要論文・主要資料まとめ</h2>
+
+            <div class="card">
+                <h3>3.1 Decoding the Disciplines 系</h3>
+
+                <div class="paper">
+                    <p><strong>Pace, D. & Middendorf, J. (2004/1999系統)</strong></p>
+                    <p class="small">キーワード：bottleneck, decoding expert thinking, student difficulty</p>
+                    <p>
+                        Decoding the Disciplines は、学生がある分野でどこに詰まるかを
+                        <strong>bottleneck</strong> として捉え、その箇所について
+                        専門家がふだん無意識にやっている思考操作を明示化する。
+                    </p>
+                    <p>
+                        あなたの目的である
+                        「学習者の困難 → そこを専門家に応えさせる」
+                        に最も近い発想を持つ。
+                    </p>
+                    <div class="quote">
+                        学習者が先に詰まり、その詰まりを専門家側が“何をしているか”として解く。
+                        この順序が明確なのが強み。
+                    </div>
+                </div>
+
+                <div class="paper">
+                    <p><strong>Decoding the Disciplines Handbook / Workshop Materials</strong></p>
+                    <p class="small">キーワード：Novices Interview Experts, bottleneck interview</p>
+                    <p>
+                        実践資料では、学習者と専門家の間にある認知の断絶を埋めるため、
+                        bottleneck から専門家説明へ橋渡しする設計が明示される。
+                        方法論名としてはやや教育実践寄りだが、今回の研究デザインに非常に近い。
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>3.2 Cognitive Apprenticeship 系</h3>
+
+                <div class="paper">
+                    <p><strong>Collins, Brown, & Newman (1989)</strong></p>
+                    <p class="small">“Cognitive apprenticeship: Teaching the crafts of reading, writing, and
+                        mathematics”</p>
+                    <p>
+                        認知的徒弟制の古典。専門家が内的に行っている思考を
+                        <strong>見える化</strong>し、
+                        学習者がそれを観察・模倣・支援付き実践を通して獲得する。
+                    </p>
+                    <p>
+                        ここでは <strong>modeling</strong>、<strong>coaching</strong>、
+                        <strong>scaffolding</strong>、<strong>fading</strong> が中核概念。
+                        丸棒矯正のような現場技能でも、「見えない判断をどう見せるか」を考える理論基盤になる。
+                    </p>
+                </div>
+
+                <div class="paper">
+                    <p><strong>Collins, Brown, & Holum (1991)</strong></p>
+                    <p class="small">“Cognitive apprenticeship: Making thinking visible”</p>
+                    <p>
+                        上記理論をより実践的に整理した資料。
+                        「専門家の thinking を visible にする」という観点が明確で、
+                        AI による質問支援や expert explanation 設計との親和性が高い。
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>3.3 Knowledge Components / KLI 系</h3>
+
+                <div class="paper">
+                    <p><strong>Koedinger, Corbett, & Perfetti (2012)</strong></p>
+                    <p class="small">“The Knowledge-Learning-Instruction Framework”</p>
+                    <p>
+                        KLI フレームワークは、学習課題を
+                        <strong>知識要素（Knowledge Components）</strong> の観点から捉え、
+                        どの指導がどの学習に効くかを接続しようとする。
+                    </p>
+                    <p>
+                        今回の用途では、「曲がりを見る」「押す位置を決める」「押し量を見積もる」
+                        などを別個の知識要素として整理できるのが強みである。
+                    </p>
+                </div>
+
+                <div class="paper">
+                    <p><strong>Koedinger 系の KC model 研究群</strong></p>
+                    <p class="small">キーワード：KC model, student model, skill decomposition</p>
+                    <p>
+                        学習者のエラーや成功を、どの知識要素に結びつけて説明するかという研究群。
+                        現場技能にそのまま適用するには調整が必要だが、
+                        「困難を小さな認知単位へ割る」という設計思想は非常に有用。
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>3.4 learner-centered procedural skill 研究</h3>
+
+                <div class="paper">
+                    <p><strong>Khan et al. (2023)</strong></p>
+                    <p class="small">Barriers and enablers to achieving clinical procedural skill competence</p>
+                    <p>
+                        医学教育だが、「手続き技能を学ぶ側がどこで困るか」を
+                        barriers / enablers として整理している。
+                        manufacturing そのものではないが、手続き技能学習の分析単位として参考になる。
+                    </p>
+                    <p>
+                        あなたの問題設定においては、
+                        「学習者が感じた難しさ」をそのまま教育改善や支援設計へ繋ぐ先行例として読める。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>4. 今回の目的に対する評価</h2>
+            <div class="card">
+                <p><strong>Q. 目的は何か？</strong></p>
+                <p>
+                    学習者のつまずきを抽出し、そこに対して専門家がどう答えるかを言語化し、
+                    最終的に支援システムへ落としたい。
+                </p>
+
+                <p><strong>A. もっとも自然な構成は何か？</strong></p>
+                <ul>
+                    <li><strong>Decoding the Disciplines</strong> で bottleneck を見つける</li>
+                    <li><strong>Cognitive Apprenticeship</strong> で expert explanation の原理を置く</li>
+                    <li><strong>Knowledge Components</strong> で困難と説明を細かい単位へ分解する</li>
+                </ul>
+
+                <p>
+                    つまり、「学習者困難の抽出」と「専門家知の外化」と「知識単位への分解」は、
+                    一つの既成手法だけで済ませるより、三層構成にした方が設計として強い。
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5. 丸棒矯正への対応づけ</h2>
+            <div class="card">
+                <p>丸棒矯正に当てはめると、以下の流れが考えられる。</p>
+
+                <div class="workflow">
+                    <ol>
+                        <li><strong>学習者から bottleneck を取る</strong><br>
+                            例：「どこで止まったか」「何が見えなかったか」「何を基準にしてよいかわからなかったか」
+                        </li>
+                        <li><strong>専門家に bottleneck を解かせる</strong><br>
+                            例：「その場面で何を見ているか」「どの候補を比較するか」「何が決め手か」
+                        </li>
+                        <li><strong>知識要素へ分解する</strong><br>
+                            例：「曲がり位置の知覚」「基準線の取り方」「押圧位置の選択」「押し過ぎ回避」
+                        </li>
+                        <li><strong>質問テンプレート化する</strong><br>
+                            例：「どこが見えなかった？」「何と何で迷った？」「それを見分ける手掛かりは？」
+                        </li>
+                        <li><strong>PDCA可能な支援システムへ落とす</strong><br>
+                            例：インタビューUI、知識カード、専門家応答ログ、次質問推薦
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>6. 検索ワード案</h2>
+            <div class="card">
+                <p>Google Scholar / 論文検索向けには次の語が有用。</p>
+                <ul>
+                    <li><code>"Decoding the Disciplines" bottleneck expert novice</code></li>
+                    <li><code>"Cognitive Apprenticeship" tacit knowledge procedural skill</code></li>
+                    <li><code>"Knowledge Components" procedural skill learning</code></li>
+                    <li><code>"learning bottlenecks" expert explanation</code></li>
+                    <li><code>"procedural skill" learner barriers expert teaching</code></li>
+                    <li><code>"novice difficulties" expert articulation</code></li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>7. 参考文献</h2>
+            <div class="card">
+                <ul>
+                    <li>
+                        Collins, A., Brown, J. S., & Newman, S. E. (1989).
+                        <em>Cognitive Apprenticeship: Teaching the Crafts of Reading, Writing, and Mathematics.</em>
+                    </li>
+                    <li>
+                        Collins, A., Brown, J. S., & Holum, A. (1991).
+                        <em>Cognitive Apprenticeship: Making Thinking Visible.</em>
+                    </li>
+                    <li>
+                        Koedinger, K. R., Corbett, A. T., & Perfetti, C. (2012).
+                        <em>The Knowledge-Learning-Instruction Framework.</em>
+                    </li>
+                    <li>
+                        Pace, D., Middendorf, J., et al.
+                        <em>Decoding the Disciplines</em> 関連論文・ワークショップ資料.
+                    </li>
+                    <li>
+                        Khan, W. U., et al. (2023).
+                        <em>Barriers and enablers to achieving clinical procedural skill competence...</em>
+                    </li>
+                </ul>
+
+                <p class="small">
+                    注：Decoding the Disciplines は単一論文より、プロジェクト資料・実践論文・ハンドブック群として読むのが実用的。
+                </p>
+            </div>
+        </section>
+
+        <div class="footer">
+            この文書は、「学習者の困難を起点に専門家知を引き出す」研究設計の初期整理用メモとして作成。
+        </div>
+    </div>
+</body>
+
+</html>

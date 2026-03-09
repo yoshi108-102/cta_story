@@ -4,16 +4,20 @@ import { AttachNodeForm } from "../components/attach-node-form";
 import { EditNodeForm } from "../components/edit-node-form";
 import { AuthPanel } from "../components/auth-panel";
 import { NodeDetail } from "../components/node-detail";
+import { TaskDiagramPanel } from "../components/task-diagram-panel";
 import { TreeOutline } from "../components/tree-outline";
 import { useEditorAuth } from "../hooks/use-editor-auth";
 import {
+  addRootTaskStep,
   getAncestors,
   getAddableKinds,
   getEditableKinds,
   getNode,
+  getRootTaskSteps,
   getUnattachedNodes,
   addNode,
   attachExistingNode,
+  setStartRootNode,
   updateNode,
 } from "../lib/tree-ops";
 import { getOrCreateDraft, publishDraft, saveDraft } from "../lib/tree-store";
@@ -148,6 +152,45 @@ export const AdminPage = () => {
     }
   };
 
+  const handleAddRootTaskStep = (input: { label: string; note: string }) => {
+    if (!tree) {
+      return;
+    }
+
+    try {
+      const nextTree = addRootTaskStep(tree, input);
+      const addedNode = nextTree.nodes[nextTree.nodes.length - 1];
+      setTree(nextTree);
+      setDirty(true);
+      setMessage("Task Step を追加しました。保存するとdraftに反映されます。");
+      if (addedNode) {
+        setSelectedNodeId(addedNode.id);
+        setExpandedNodeIds((prev) => new Set(prev).add(addedNode.id));
+      }
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "Task Step 追加に失敗しました。";
+      setMessage(text);
+    }
+  };
+
+  const handleSelectStartRoot = (rootNodeId: string) => {
+    if (!tree) {
+      return;
+    }
+
+    try {
+      const nextTree = setStartRootNode(tree, rootNodeId);
+      setTree(nextTree);
+      setDirty(true);
+      setSelectedNodeId(rootNodeId);
+      setExpandedNodeIds((prev) => new Set(prev).add(rootNodeId));
+      setMessage("開始ルートを更新しました。保存するとdraftに反映されます。");
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "開始ルートの更新に失敗しました。";
+      setMessage(text);
+    }
+  };
+
   const handleSave = async () => {
     if (!tree || !canLoad) {
       return;
@@ -192,6 +235,7 @@ export const AdminPage = () => {
   };
 
   const selectedNode = tree ? getNode(tree, selectedNodeId) ?? null : null;
+  const rootTaskSteps = tree ? getRootTaskSteps(tree) : [];
   const addableKinds = tree && selectedNode ? getAddableKinds(tree, selectedNode.id) : [];
   const editableKinds = tree && selectedNode ? getEditableKinds(tree, selectedNode.id) : [];
   const unattachedNodes = tree ? getUnattachedNodes(tree) : [];
@@ -202,7 +246,7 @@ export const AdminPage = () => {
       <header className="page-header">
         <div>
           <h1>管理画面</h1>
-          <p className="muted">CTAフォーマット準拠のノード編集 / 追加 / 接続エディタです。</p>
+          <p className="muted">CTAフォーマット準拠。Task Diagram の root Task Step を管理できます。</p>
         </div>
         <nav>
           <a href="/">公開ビューへ</a>
@@ -239,25 +283,35 @@ export const AdminPage = () => {
       {message ? <p className="muted">{message}</p> : null}
 
       {tree ? (
-        <main className="editor-grid">
-          <TreeOutline
-            tree={tree}
+        <>
+          <TaskDiagramPanel
+            roots={rootTaskSteps}
+            startRootId={tree.rootNodeId}
             selectedNodeId={selectedNodeId}
-            expandedNodeIds={expandedNodeIds}
-            onSelect={selectNode}
-            onToggle={toggleExpand}
+            onSelectStartRoot={handleSelectStartRoot}
+            onFocusRoot={selectNode}
+            onAddRoot={handleAddRootTaskStep}
           />
-          <NodeDetail tree={tree} selectedNodeId={selectedNodeId} />
-          <div className="stack">
-            <EditNodeForm node={selectedNode} editableKinds={editableKinds} onSubmit={handleUpdateNode} />
-            <AddNodeForm parentId={selectedNodeId} allowedKinds={addableKinds} onSubmit={handleAddNode} />
-            <AttachNodeForm
-              nodes={attachableUnattachedNodes}
-              onSubmit={handleAttachNode}
-              emptyMessage="接続可能な未接続ノードはありません。"
+          <main className="editor-grid">
+            <TreeOutline
+              tree={tree}
+              selectedNodeId={selectedNodeId}
+              expandedNodeIds={expandedNodeIds}
+              onSelect={selectNode}
+              onToggle={toggleExpand}
             />
-          </div>
-        </main>
+            <NodeDetail tree={tree} selectedNodeId={selectedNodeId} />
+            <div className="stack">
+              <EditNodeForm node={selectedNode} editableKinds={editableKinds} onSubmit={handleUpdateNode} />
+              <AddNodeForm parentId={selectedNodeId} allowedKinds={addableKinds} onSubmit={handleAddNode} />
+              <AttachNodeForm
+                nodes={attachableUnattachedNodes}
+                onSubmit={handleAttachNode}
+                emptyMessage="接続可能な未接続ノードはありません。"
+              />
+            </div>
+          </main>
+        </>
       ) : null}
     </div>
   );

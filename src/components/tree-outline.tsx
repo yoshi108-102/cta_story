@@ -99,7 +99,9 @@ export const TreeOutline = ({
     );
   };
 
-  const root = tree.nodes.find((node) => node.id === tree.rootNodeId);
+  const root =
+    tree.nodes.find((node) => node.id === tree.rootNodeId) ??
+    tree.nodes.find((node) => node.parentId === null && node.kind === "task_step");
 
   if (!root) {
     return <p className="error">root nodeが見つかりません。</p>;

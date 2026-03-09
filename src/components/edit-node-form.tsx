@@ -13,6 +13,17 @@ export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProp
     () => nodeKindOptions.filter((option) => editableKinds.includes(option.value)),
     [editableKinds],
   );
+  const effectiveOptions = useMemo(() => {
+    if (!node) {
+      return [];
+    }
+
+    if (selectableKinds.length > 0) {
+      return selectableKinds;
+    }
+
+    return nodeKindOptions.filter((option) => option.value === node.kind);
+  }, [node, selectableKinds]);
   const [kind, setKind] = useState<NodeKind | "">("");
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
@@ -25,14 +36,14 @@ export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProp
       return;
     }
 
-    if (editableKinds.includes(node.kind)) {
+    if (effectiveOptions.some((option) => option.value === node.kind)) {
       setKind(node.kind);
     } else {
-      setKind(editableKinds[0] ?? "");
+      setKind(effectiveOptions[0]?.value ?? "");
     }
     setLabel(node.label);
     setNote(node.note);
-  }, [editableKinds, node?.id, node?.kind, node?.label, node?.note]);
+  }, [effectiveOptions, node?.id, node?.kind, node?.label, node?.note]);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -53,14 +64,19 @@ export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProp
       <h3>選択ノードを編集</h3>
       {!node ? (
         <p className="muted">ノードを選択してください。</p>
-      ) : selectableKinds.length === 0 ? (
-        <p className="muted">このノードはCTAルール上、種別変更できません。</p>
       ) : (
         <>
+          {selectableKinds.length === 0 ? (
+            <p className="muted">このノードはCTAルール上、種別変更できません。ラベル/注記のみ更新できます。</p>
+          ) : null}
           <label>
             種別
-            <select value={kind} onChange={(event) => setKind(event.target.value as NodeKind)}>
-              {selectableKinds.map((option) => (
+            <select
+              value={kind}
+              onChange={(event) => setKind(event.target.value as NodeKind)}
+              disabled={selectableKinds.length === 0}
+            >
+              {effectiveOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label} ({option.description})
                 </option>
