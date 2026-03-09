@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ACTA論文解説</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --good: #065f46;
+      --good-bg: #d1fae5;
+      --warn: #92400e;
+      --warn-bg: #fef3c7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #eff6ff, #ffffff);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+      margin-bottom: 24px;
+    }
+    h1, h2, h3 { line-height: 1.35; }
+    h1 { font-size: 2rem; margin: 0 0 12px; }
+    h2 {
+      margin-top: 0;
+      font-size: 1.4rem;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+    }
+    h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    p { margin: 0 0 12px; }
+    .lead {
+      font-size: 1.05rem;
+      color: #374151;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .good {
+      background: var(--good-bg);
+      color: var(--good);
+    }
+    .warn {
+      background: var(--warn-bg);
+      color: var(--warn);
+    }
+    ul {
+      margin: 8px 0 0 1.2em;
+      padding: 0;
+    }
+    li { margin: 6px 0; }
+    .section {
+      margin-top: 22px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.95rem;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .table th, .table td {
+      border: 1px solid var(--line);
+      padding: 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+    .table th {
+      background: #f9fafb;
+      font-weight: 700;
+    }
+    .quote {
+      border-left: 4px solid var(--accent);
+      background: #f8fbff;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin: 14px 0;
+      color: #374151;
+    }
+    .small {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.92em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="badge">論文解説</div>
+      <h1>Applied Cognitive Task Analysis (ACTA) 論文解説</h1>
+      <p class="lead">
+        Laura G. Militello と Robert J. B. Hutton による 1998 年の論文
+        <em>“Applied cognitive task analysis (ACTA): a practitioner's toolkit for understanding cognitive task demands”</em>
+        の内容を、実務で使う視点で整理した解説です。
+      </p>
+      <p class="meta">
+        論文の主題は、従来のCTA（Cognitive Task Analysis）は強力だが重すぎるため、
+        実務家でも使えるように軽量化した方法として ACTA を提示することです。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>1. この論文のひとことで言うと</h2>
+      <div class="quote">
+        ACTA は、「熟練者の頭の中にある判断・気づき・見分け方・失敗回避のコツ」を、
+        研究者でなくても比較的短時間で引き出し、訓練教材やシステム設計に落とし込めるようにした、実務向けCTA手法です。
+      </div>
+      <p>
+        著者たちは、CTA自体は有用だが、従来手法は時間も専門性も必要で、現場の教育担当者やシステム設計者には使いにくいと見ています。
+        そこで ACTA では、<strong>3つのインタビュー手法</strong>と、結果を整理する
+        <strong>cognitive demands table</strong> をセットにして、認知的負荷や熟練のコツを扱いやすくしています。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>2. 背景：なぜACTAが必要だったのか</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="badge">問題意識</div>
+          <p>技術の進歩で単純作業は機械化される一方、人間には推論・診断・判断・意思決定のような高度な認知が残る。</p>
+        </div>
+        <div class="card">
+          <div class="badge">従来CTAの課題</div>
+          <p>既存のCTAは強力だが、時間・コスト・専門知識が必要で、研究プロジェクト以外では使いにくい。</p>
+        </div>
+        <div class="card">
+          <div class="badge">ACTAの狙い</div>
+          <p>教育設計者やシステム設計者が、専門の認知心理学者でなくても使えるレベルまでCTAを簡略化する。</p>
+        </div>
+      </div>
+      <p>
+        論文では特に、熟練者の持つ知識のうち、単なる手順知識ではなく、
+        <strong>「どこを見るか」「何を兆候として読むか」「初心者がどこで誤るか」</strong>
+        のような暗黙的・経験依存の部分を取り出すことが重要だとされています。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>3. ACTAの全体構成</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>要素</th>
+            <th>役割</th>
+            <th>何が取れるか</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Task Diagram</strong></td>
+            <td>作業全体の流れを荒く分解する</td>
+            <td>どの工程に難しい認知があるか</td>
+          </tr>
+          <tr>
+            <td><strong>Knowledge Audit</strong></td>
+            <td>熟練性の特徴を観点別に聞く</td>
+            <td>予測、気づき、異常検知、コツ、即興対応、自己モニタリングなど</td>
+          </tr>
+          <tr>
+            <td><strong>Simulation Interview</strong></td>
+            <td>具体的シナリオの中で判断過程を掘る</td>
+            <td>状況評価、行動、判断根拠、初心者の誤り</td>
+          </tr>
+          <tr>
+            <td><strong>Cognitive Demands Table</strong></td>
+            <td>抽出した内容を統合する</td>
+            <td>教育・訓練・インターフェース改善に直結する形式</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>4. 各手法の中身</h2>
+
+      <h3>4-1. Task Diagram Interview</h3>
+      <p>
+        まず対象タスクを <strong>3〜6 ステップ程度</strong> に粗く分解し、
+        その中で「判断・評価・問題解決が難しい箇所」を特定します。
+        ここでの目的は詳細分析ではなく、<strong>どこを深掘りすべきかを見つけること</strong>です。
+      </p>
+      <div class="quote">
+        重要なのは、最初から全部を細かく聞くことではなく、
+        「認知的に難しい部分の当たりを付ける」ことです。
+      </div>
+
+      <h3>4-2. Knowledge Audit</h3>
+      <p>
+        これは ACTA の核です。著者たちは熟練性の代表的な特徴をプローブとして用意し、
+        それぞれについて具体例を聞きます。論文に出てくる代表カテゴリは次の通りです。
+      </p>
+      <div class="grid">
+        <div class="card"><strong>Past &amp; Future</strong><br>過去の経緯の再構成と、先の展開の予測</div>
+        <div class="card"><strong>Big Picture</strong><br>全体像の把握、どこが本質かの理解</div>
+        <div class="card"><strong>Noticing</strong><br>目立たない兆候や違和感への気づき</div>
+        <div class="card"><strong>Job Smarts</strong><br>効率のよい進め方、無駄を避けるコツ</div>
+        <div class="card"><strong>Opportunities / Improvising</strong><br>状況に応じた柔軟対応</div>
+        <div class="card"><strong>Self Monitoring</strong><br>自分の状態や限界の把握</div>
+        <div class="card"><strong>Anomalies</strong><br>典型から外れた状態の検知</div>
+        <div class="card"><strong>Equipment Difficulties</strong><br>機器や表示を鵜呑みにしない判断</div>
+      </div>
+      <p>
+        論文のポイントは、単に「そういう能力はありますか」と聞くのではなく、
+        <strong>実際の出来事を例にして、手掛かり・戦略・初心者の失敗</strong>まで聞くことです。
+      </p>
+
+      <h3>4-3. Simulation Interview</h3>
+      <p>
+        難しい具体的な状況を提示し、その場面で専門家ならどう考え、どう行動するかを聞く方法です。
+        著者たちは、紙のシナリオでもよく、映像や高精度シミュレータは必須ではないと述べています。
+        大切なのは <strong>「難しい状況」であること</strong>です。
+      </p>
+      <p>
+        この面接で見るのは主に次の4つです。
+      </p>
+      <ul>
+        <li>その時点で何をするか</li>
+        <li>状況をどう評価しているか</li>
+        <li>何を根拠にそう判断したか</li>
+        <li>初心者ならどんな誤りを起こしそうか</li>
+      </ul>
+
+      <h3>4-4. Cognitive Demands Table</h3>
+      <p>
+        最後に、複数のインタビューから得られた内容を表に整理します。
+        論文の例では、主に <code>難しい認知要素 / なぜ難しいか / よくある誤り / 使う手掛かりと戦略</code>
+        という形にまとめています。
+      </p>
+      <p>
+        これは単なる記録表ではなく、<strong>教育目標や訓練シナリオ、システム改善の設計図</strong>にするための形式です。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>5. 論文の評価実験で何を確かめたか</h2>
+      <p>
+        著者たちは、ACTA が本当に実務向け手法として使えるかを確かめるため、
+        消防と電子戦の2領域で評価実験を行っています。被験者は CTA 初学者の大学院生で、
+        ACTA の訓練を受けた群と、構造化されていない面接を行う群を比較しました。
+      </p>
+      <div class="grid">
+        <div class="card">
+          <div class="badge">評価した点</div>
+          <ul>
+            <li>使いやすさ（usability）</li>
+            <li>得られた情報が認知的内容か</li>
+            <li>経験者ならではの知識を取れているか</li>
+            <li>教材化した内容が正確で重要か</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="badge">実験タスク</div>
+          <ul>
+            <li>消防: size-up（初動の状況把握）</li>
+            <li>電子戦: signal threat analysis</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="badge">アウトプット</div>
+          <ul>
+            <li>cognitive demands table</li>
+            <li>学習目標</li>
+            <li>訓練マニュアル改訂案</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>6. 主要な結果</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="badge good">使いやすさ</div>
+          <p>大学院生でも、ACTA の各手法を概ね使いやすく、柔軟で、出力が明確だと評価しました。</p>
+        </div>
+        <div class="card">
+          <div class="badge good">認知的内容</div>
+          <p>生成された cognitive demands table の項目のうち、約 <strong>93%</strong> が認知的内容と判定されました。</p>
+        </div>
+        <div class="card">
+          <div class="badge good">経験知の抽出</div>
+          <p>消防では平均 <strong>95%</strong>、電子戦では平均 <strong>90%</strong> が「経験者ならではの知識」と評価されました。</p>
+        </div>
+        <div class="card">
+          <div class="badge good">教材化の有効性</div>
+          <p>ACTA から作った学習目標や教材修正案は、多くが重要かつ正確だと専門家に評価されました。</p>
+        </div>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>観点</th>
+            <th>論文の示す結果</th>
+            <th>解釈</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>認知的内容率</td>
+            <td>約93%</td>
+            <td>単なる作業手順でなく、判断や気づきの情報をかなり取れている</td>
+          </tr>
+          <tr>
+            <td>経験者しか知らない情報の割合</td>
+            <td>消防95%、電子戦90%</td>
+            <td>教科書知識よりも経験知を引き出せている</td>
+          </tr>
+          <tr>
+            <td>使いやすさ</td>
+            <td>全体に好評価</td>
+            <td>実務家が導入しやすい可能性がある</td>
+          </tr>
+          <tr>
+            <td>群間比較</td>
+            <td>ACTA群と非構造群の差は限定的</td>
+            <td>サンプル数の小ささや個人差の影響が大きい</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>7. この論文の重要な読みどころ</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="badge">読みどころ 1</div>
+          <p><strong>ACTA は「完全な分析」より「使える分析」を優先している。</strong><br>深さを多少犠牲にしても、現場で回ることを重視している点が本質です。</p>
+        </div>
+        <div class="card">
+          <div class="badge">読みどころ 2</div>
+          <p><strong>初心者の誤りを必ず聞く設計になっている。</strong><br>これは教育設計に直結しやすく、訓練課題の設計にも強いです。</p>
+        </div>
+        <div class="card">
+          <div class="badge">読みどころ 3</div>
+          <p><strong>知識の中身を「観点ベース」で聞く。</strong><br>タスク手順だけではなく、予測・異常検知・自己監視のような熟練性の構造を狙っています。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>8. 限界と注意点</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="badge warn">限界</div>
+          <p>著者自身も、ACTA は PARI や CDM のような重厚な手法より浅く、包括性も低い可能性があると認めています。</p>
+        </div>
+        <div class="card">
+          <div class="badge warn">信頼性の難しさ</div>
+          <p>CTA は人が人に聞く方法なので、面接者・専門家・領域の違いによるばらつきを完全に消すのが難しいです。</p>
+        </div>
+        <div class="card">
+          <div class="badge warn">比較結果の解釈</div>
+          <p>ACTA群と非構造群の差が大きく出なかった部分は、サンプル数の小ささと個人差の影響が大きいと論文は述べています。</p>
+        </div>
+      </div>
+      <p>
+        つまりこの論文は、
+        <strong>「ACTA は万能で最も深い方法だ」</strong> と主張しているわけではなく、
+        <strong>「深さは少し落ちても、実務家が回せる方法として十分価値がある」</strong>
+        という主張です。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>9. あなたの文脈でどう使えるか</h2>
+      <p>
+        あなたが関心を持っているような、技能継承・CTAインタビュー・学習者のつまずき抽出の文脈では、
+        この論文はかなり相性が良いです。特に次のように応用できます。
+      </p>
+      <ul>
+        <li><strong>Task Diagram</strong> で作業全体を 3〜6 工程に整理し、どこが難しいかを特定する</li>
+        <li><strong>Knowledge Audit</strong> の観点を、熟練者だけでなく学習者の「難しかった点」の整理軸として使う</li>
+        <li><strong>Simulation Interview</strong> を、実演動画・作業ログ・振り返り映像に置き換えて具体場面を掘る</li>
+        <li><strong>Cognitive Demands Table</strong> を、そのまま Knowledge Component や質問生成の元データにする</li>
+      </ul>
+      <p>
+        つまり ACTA は、単なる面接法というより、
+        <strong>「暗黙知を、後で再利用できる構造化データに変えるための最小構成」</strong>
+        として読むとかなり有用です。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>10. まとめ</h2>
+      <div class="quote">
+        この論文の価値は、CTA を理論から現場実装へ近づけたことにあります。
+        ACTA は、認知的に難しい仕事を対象に、熟練者の判断・気づき・失敗回避を、
+        比較的軽量な方法で取り出し、訓練や設計へつなげるための枠組みです。
+      </div>
+      <p>
+        深さでは重厚なCTA手法に及ばない面がある一方、
+        <strong>「現場で回る」「教育に落ちる」「初心者の誤りまで扱える」</strong>
+        という点で、今でも十分読む価値があります。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>11. 論文情報</h2>
+      <p><strong>Title:</strong> Applied cognitive task analysis (ACTA): a practitioner's toolkit for understanding cognitive task demands</p>
+      <p><strong>Authors:</strong> Laura G. Militello, Robert J. B. Hutton</p>
+      <p><strong>Journal:</strong> Ergonomics, 41(11), 1618–1641</p>
+      <p><strong>Year:</strong> 1998</p>
+      <p><strong>DOI:</strong> 10.1080/001401398186108</p>
+      <p class="small">
+        このHTMLは、論文本文に基づいて要約・再構成した解説です。特に、ACTA の目的、3つの面接手法、cognitive demands table、
+        評価実験の設計、妥当性・有用性・限界に注目して整理しています。
+      </p>
+    </section>
+
+    <p class="footer">Generated for paper explanation use.</p>
+  </div>
+</body>
+</html>
