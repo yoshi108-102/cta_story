@@ -2,6 +2,19 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 公開版は誰でも閲覧可能
+    match /trees/{treeId}/versions/published {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 下書きは editor custom claim を持つユーザーのみ
+    match /trees/{treeId}/versions/draft {
+      allow read, write: if request.auth != null
+        && request.auth.token.editor == true;
+    }
+
+    // それ以外は拒否
     match /{document=**} {
       allow read, write: if false;
     }
