@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>なぜなぜ問答 樹形図エディタ設計書</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f1e8;
+        --paper: #fffdf8;
+        --ink: #1f1a17;
+        --muted: #62584f;
+        --line: #d6c7b7;
+        --accent: #9d3f1f;
+        --accent-soft: #f6e1d9;
+        --good: #305f3c;
+        --bad: #6d2d2d;
+        --shadow: 0 12px 32px rgba(49, 35, 18, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top right, rgba(157, 63, 31, 0.1), transparent 28%),
+          linear-gradient(180deg, #efe7da 0%, var(--bg) 280px);
+        line-height: 1.7;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 32px));
+        margin: 24px auto 48px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 28px 30px;
+        margin-bottom: 18px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.3;
+        margin: 0;
+      }
+
+      h1 {
+        margin-top: 14px;
+        font-size: clamp(28px, 4vw, 42px);
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+
+      p,
+      ul,
+      ol,
+      table,
+      pre {
+        margin: 0;
+      }
+
+      .lede {
+        margin-top: 14px;
+        color: var(--muted);
+        max-width: 72ch;
+      }
+
+      .meta {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .meta span {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        font-size: 13px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .section {
+        padding: 24px 26px;
+        margin-bottom: 18px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px;
+        background: #fff;
+      }
+
+      .callout {
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: #fff8f1;
+      }
+
+      .callout.good {
+        background: #f3fbf4;
+        border-color: #c7e2cc;
+      }
+
+      .callout.bad {
+        background: #fff3f3;
+        border-color: #e6c6c6;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2em;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+        border-top: 1px solid var(--line);
+        vertical-align: top;
+        text-align: left;
+      }
+
+      th {
+        width: 18%;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .decision {
+        color: var(--good);
+        font-weight: 700;
+      }
+
+      .rejected {
+        color: var(--bad);
+        font-weight: 700;
+      }
+
+      .wireframe {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: 260px 1fr;
+        min-height: 520px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        padding: 14px;
+      }
+
+      .panel h3 {
+        margin-bottom: 12px;
+      }
+
+      .tree-item,
+      .crumb,
+      .child-card,
+      .form-row {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fffdf9;
+      }
+
+      .tree-item {
+        padding: 10px 12px;
+      }
+
+      .tree-item + .tree-item,
+      .child-card + .child-card,
+      .form-row + .form-row {
+        margin-top: 10px;
+      }
+
+      .tree-depth-1 {
+        margin-left: 16px;
+      }
+
+      .tree-depth-2 {
+        margin-left: 32px;
+      }
+
+      .crumbs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .crumb {
+        padding: 6px 10px;
+      }
+
+      .focus-node {
+        border: 2px solid var(--accent);
+        border-radius: 16px;
+        padding: 16px;
+        background: #fff7f3;
+        margin-bottom: 14px;
+      }
+
+      .focus-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 14px;
+      }
+
+      .child-card {
+        padding: 12px 14px;
+      }
+
+      .form-row {
+        padding: 12px 14px;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        margin-right: 8px;
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: #1e1b18;
+        color: #f3eee8;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, monospace;
+      }
+
+      .sources a,
+      .toc a {
+        color: var(--accent);
+      }
+
+      .toc ul {
+        columns: 2;
+        column-gap: 28px;
+      }
+
+      @media (max-width: 860px) {
+        .wireframe,
+        .focus-grid,
+        .toc ul {
+          grid-template-columns: 1fr;
+          columns: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">設計書 / HTML</span>
+        <h1>なぜなぜ問答 樹形図エディタ設計書</h1>
+        <p class="lede">
+          対象は「丸棒矯正」のなぜなぜ問答。公開用の樹形図を作れることが目的で、コードは使い捨て前提。
+          そのため、可視化の派手さよりも、深い階層でも読みやすく、状態管理が単純で、後から壊しにくい構成を優先する。
+        </p>
+        <div class="meta">
+          <span>前提: AI 機能なし</span>
+          <span>公開: Firebase Hosting 優先</span>
+          <span>編集: ノード追加 / エッジ追加のみ</span>
+          <span>方針: React Flow は不採用</span>
+        </div>
+      </section>
+
+      <section class="section toc">
+        <h2>目次</h2>
+        <ul>
+          <li><a href="#summary">1. 結論</a></li>
+          <li><a href="#goals">2. 目的と非目的</a></li>
+          <li><a href="#options">3. UI 候補比較</a></li>
+          <li><a href="#ui">4. 採用 UI</a></li>
+          <li><a href="#state">5. 状態モデル</a></li>
+          <li><a href="#operations">6. 編集操作</a></li>
+          <li><a href="#firebase">7. Firebase 構成</a></li>
+          <li><a href="#security">8. 最低限の耐性</a></li>
+          <li><a href="#roadmap">9. 実装順序</a></li>
+          <li><a href="#sources">10. 参考情報</a></li>
+        </ul>
+      </section>
+
+      <section id="summary" class="section">
+        <h2>1. 結論</h2>
+        <div class="grid two">
+          <div class="callout good">
+            <h3>採用案</h3>
+            <p>
+              <strong>フォーカス型アウトラインエディタ</strong> を採用する。
+              左に折りたたみ可能なツリー一覧、中央に選択ノードの詳細と直下の子、右に追加フォームを置く。
+              全体を常時描画しない。
+            </p>
+          </div>
+          <div class="callout">
+            <h3>採用理由</h3>
+            <p>
+              深い階層でも崩れにくく、Canvas 系ライブラリより編集フローが明快。さらに、状態は
+              <code>nodes[]</code> の単純な配列で管理できる。
+            </p>
+          </div>
+        </div>
+        <div class="callout bad" style="margin-top: 14px;">
+          <h3>今回あえて捨てるもの</h3>
+          <p>
+            ノードをドラッグして線を引くような「グラフ編集らしさ」は捨てる。なぜなぜ問答では、見やすさと壊れにくさの方が価値が高い。
+          </p>
+        </div>
+      </section>
+
+      <section id="goals" class="section">
+        <h2>2. 目的と非目的</h2>
+        <div class="grid two">
+          <div class="card">
+            <h3>目的</h3>
+            <ul>
+              <li>深い階層でも見失いにくい UI にする</li>
+              <li>ノード追加とエッジ追加だけで運用できる</li>
+              <li>使い捨てコードとして把握しやすい実装にする</li>
+              <li>樹形図の状態を単純な JSON として保持する</li>
+              <li>公開側と編集側を分けつつ、構成を重くしない</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>非目的</h3>
+            <ul>
+              <li>巨大グラフを高速にパン・ズームすること</li>
+              <li>複数人の同時編集</li>
+              <li>ドラッグ配線や自由配置</li>
+              <li>リッチテキストや Markdown 編集</li>
+              <li>複雑なアクセス制御や監査ログ</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="options" class="section">
+        <h2>3. UI 候補比較</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>候補</th>
+              <th>見え方</th>
+              <th>編集しやすさ</th>
+              <th>実装複雑性</th>
+              <th>判断</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>React Flow 系の自由配置グラフ</td>
+              <td>派手だが、深い木では視線移動が大きい</td>
+              <td>ドラッグはできるが、なぜなぜ問答には過剰</td>
+              <td>高い</td>
+              <td class="rejected">不採用</td>
+            </tr>
+            <tr>
+              <td>D3 tidy tree / vis-network hierarchical / Cytoscape breadthfirst</td>
+              <td>自動整列はできるが、深い階層では横幅か縦幅に寄りやすい</td>
+              <td>閲覧向きで、編集 UI を別で作る必要がある</td>
+              <td>中〜高</td>
+              <td class="rejected">不採用</td>
+            </tr>
+            <tr>
+              <td>DOM ベースのアウトラインツリー + フォーカス詳細</td>
+              <td>全体を無理に出さず、今見る枝に集中できる</td>
+              <td>追加操作をボタンとフォームに寄せられる</td>
+              <td>低い</td>
+              <td class="decision">採用</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="grid three" style="margin-top: 16px;">
+          <div class="card">
+            <h3>React Flow を外す理由</h3>
+            <p>
+              ノード位置という余計な状態が増える。見た目の自由度は高いが、深い木で「どこを読めばよいか」が改善しない。
+            </p>
+          </div>
+          <div class="card">
+            <h3>自動レイアウト系を外す理由</h3>
+            <p>
+              可視化自体は可能でも、編集は別 UI になる。結果的に状態管理とレイアウト調整が二重化しやすい。
+            </p>
+          </div>
+          <div class="card">
+            <h3>採用案の特徴</h3>
+            <p>
+              木構造を「全体図」ではなく「現在の文脈」として見せる。読みやすさを UI 構造で担保する。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="ui" class="section">
+        <h2>4. 採用 UI</h2>
+        <p style="margin-bottom: 14px;">
+          UI は 3 ペイン構成にする。ただし右ペインはモーダルに落としてもよい。要点は「ツリー一覧」「選択ノードの文脈」「追加操作」を分けること。
+        </p>
+        <div class="wireframe">
+          <aside class="panel">
+            <h3>左: ツリー一覧</h3>
+            <div class="tree-item">
+              <span class="pill">root</span>真直度 NG が発生
+            </div>
+            <div class="tree-item tree-depth-1">
+              <span class="pill">why</span>入側材の曲がり把握不足
+            </div>
+            <div class="tree-item tree-depth-2">
+              <span class="pill">why</span>測定タイミングが遅い
+            </div>
+            <div class="tree-item tree-depth-1">
+              <span class="pill">why</span>ロール条件が固定化
+            </div>
+            <p style="margin-top: 12px; color: var(--muted);">
+              初期表示は全展開しない。選択ノードの祖先と近傍だけを開く。
+            </p>
+          </aside>
+
+          <section class="panel">
+            <h3>中央: フォーカス詳細</h3>
+            <div class="crumbs">
+              <div class="crumb">問題</div>
+              <div class="crumb">入側材の曲がり把握不足</div>
+              <div class="crumb">測定タイミングが遅い</div>
+            </div>
+            <div class="focus-node">
+              <strong>選択中ノード</strong>
+              <p>測定タイミングが遅い</p>
+              <p style="color: var(--muted);">注記: ライン停止後にしか確認していない</p>
+            </div>
+            <div class="focus-grid">
+              <div class="panel" style="padding: 12px;">
+                <h3>直下の子</h3>
+                <div class="child-card">
+                  <strong>なぜ?</strong>
+                  <p>矯正前の先端確認が標準化されていない</p>
+                </div>
+                <div class="child-card">
+                  <strong>なぜ?</strong>
+                  <p>班ごとに確認方法が異なる</p>
+                </div>
+              </div>
+              <div class="panel" style="padding: 12px;">
+                <h3>追加操作</h3>
+                <div class="form-row">
+                  <strong>子ノードを追加</strong>
+                  <p>選択中ノードの子として新規作成する</p>
+                </div>
+                <div class="form-row">
+                  <strong>既存ノードを接続</strong>
+                  <p>未接続ノード一覧から 1 件選んで子としてつなぐ</p>
+                </div>
+                <div class="form-row">
+                  <strong>接続操作はボタン式</strong>
+                  <p>ドラッグ配線は入れない</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="grid two" style="margin-top: 16px;">
+          <div class="card">
+            <h3>この UI の利点</h3>
+            <ul>
+              <li>今読むべきノードと、その前後関係が分かりやすい</li>
+              <li>全体図の横長化を避けられる</li>
+              <li>ツリー編集を通常のフォーム処理として実装できる</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>グラフィカル追加を切る理由</h3>
+            <ul>
+              <li>ドラッグ配線は誤操作や例外処理が増える</li>
+              <li>タッチ操作や狭い画面で破綻しやすい</li>
+              <li>木構造なのに、自由グラフの UI を持ち込む意味が薄い</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="state" class="section">
+        <h2>5. 状態モデル</h2>
+        <div class="callout good" style="margin-bottom: 14px;">
+          <p>
+            樹形図は <strong>単一 JSON ドキュメント</strong> として保存する。ノードごとの Firestore サブコレクションにはしない。
+            使い捨てコードで複雑性を落とすなら、まずは 1 ドキュメント管理が適切。
+          </p>
+        </div>
+        <pre><code>{
+  "treeId": "marubou-001",
+  "title": "丸棒矯正 なぜなぜ問答",
+  "rootNodeId": "n-root",
+  "nodes": [
+    {
+      "id": "n-root",
+      "parentId": null,
+      "kind": "problem",
+      "label": "矯正後の丸棒で真直度 NG が発生した",
+      "note": "起点ノード",
+      "createdAt": "2026-03-09T10:00:00Z"
+    },
+    {
+      "id": "n-101",
+      "parentId": "n-root",
+      "kind": "why",
+      "label": "入側材の曲がり把握が不足していた",
+      "note": "",
+      "createdAt": "2026-03-09T10:05:00Z"
+    },
+    {
+      "id": "n-102",
+      "parentId": null,
+      "kind": "why",
+      "label": "未接続ノードの例",
+      "note": "",
+      "createdAt": "2026-03-09T10:06:00Z"
+    }
+  ]
+}</code></pre>
+        <div class="grid two" style="margin-top: 16px;">
+          <div class="card">
+            <h3>なぜ <code>parentId</code> だけで持つのか</h3>
+            <ul>
+              <li>エッジを別管理しなくてよい</li>
+              <li><code>childIds</code> と二重管理にならない</li>
+              <li>ノード追加は配列に 1 件足すだけ</li>
+              <li>エッジ追加は対象ノードの <code>parentId</code> を更新するだけ</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>ローカル UI 状態</h3>
+            <pre><code>{
+  selectedNodeId: "n-101",
+  expandedNodeIds: ["n-root", "n-101"],
+  draftLabel: "",
+  draftNote: "",
+  attachTargetId: null
+}</code></pre>
+          </div>
+        </div>
+        <p style="margin-top: 14px;">
+          子一覧は毎回 <code>nodes.filter(node =&gt; node.parentId === selectedNodeId)</code> で求めてよい。小規模前提ならこれで十分で、余計なインデックスを持たない方が壊れにくい。
+        </p>
+      </section>
+
+      <section id="operations" class="section">
+        <h2>6. 編集操作</h2>
+        <div class="grid two">
+          <div class="card">
+            <h3>操作 1: ノード追加</h3>
+            <ol>
+              <li>親ノードを選択する</li>
+              <li>ラベルと注記を入力する</li>
+              <li>保存時に新規ノードを <code>nodes[]</code> へ追加する</li>
+              <li>新規ノードの <code>parentId</code> は選択中ノード ID とする</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>操作 2: エッジ追加</h3>
+            <ol>
+              <li>親ノードを選択する</li>
+              <li>未接続ノード一覧から接続先を選ぶ</li>
+              <li>接続時に対象ノードの <code>parentId</code> を更新する</li>
+              <li>すでに <code>parentId</code> があるノードは一覧に出さない</li>
+            </ol>
+          </div>
+        </div>
+        <div class="grid three" style="margin-top: 16px;">
+          <div class="card">
+            <h3>保存単位</h3>
+            <p>変更があるたびにツリー全体を保存してよい。差分保存は不要。</p>
+          </div>
+          <div class="card">
+            <h3>循環防止</h3>
+            <p>親にしようとしているノードが、自分の子孫でないことだけ確認する。</p>
+          </div>
+          <div class="card">
+            <h3>表示順</h3>
+            <p>兄弟ノードの順番は <code>createdAt</code> 昇順で十分。並び替え機能は入れない。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="firebase" class="section">
+        <h2>7. Firebase 構成</h2>
+        <div class="callout" style="margin-bottom: 14px;">
+          <p>
+            この要件なら <strong>Firebase App Hosting より Firebase Hosting の方が自然</strong>。
+            SSR もサーバー API も不要なので、React の SPA を Hosting に置き、Auth と Firestore をクライアント SDK で使う方が単純。
+          </p>
+        </div>
+        <table>
+          <tbody>
+            <tr>
+              <th>デプロイ</th>
+              <td>Firebase Hosting を推奨。App Hosting は不要。もし App Hosting に統一したいなら、同じ SPA を載せるだけにして server 機能は使わない。</td>
+            </tr>
+            <tr>
+              <th>認証</th>
+              <td>Firebase Auth の Google ログイン。編集者だけ許可する。</td>
+            </tr>
+            <tr>
+              <th>保存先</th>
+              <td>Firestore の 2 ドキュメント構成。<code>draft</code> と <code>published</code> を分ける。</td>
+            </tr>
+            <tr>
+              <th>読み込み</th>
+              <td>公開ページは <code>published</code> を読む。管理画面は <code>draft</code> を読む。</td>
+            </tr>
+            <tr>
+              <th>公開操作</th>
+              <td>管理画面の「公開」で <code>draft</code> の内容を <code>published</code> に上書きする。</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre style="margin-top: 16px;"><code>/trees/{treeId}/versions/draft
+/trees/{treeId}/versions/published</code></pre>
+        <div class="grid two" style="margin-top: 16px;">
+          <div class="card">
+            <h3>この構成の利点</h3>
+            <ul>
+              <li>サーバーコードがいらない</li>
+              <li>公開版と編集中を混ぜずに済む</li>
+              <li>JSON の全保存だけで完結する</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>後から困る可能性</h3>
+            <ul>
+              <li>ノード数が大きくなると 1 ドキュメント上限に近づく</li>
+              <li>同時編集には向かない</li>
+              <li>細かい監査ログは残しにくい</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="security" class="section">
+        <h2>8. 最低限の耐性</h2>
+        <div class="grid two">
+          <div class="card">
+            <h3>最低限やること</h3>
+            <ul>
+              <li>入力は plain text のみ</li>
+              <li>HTML や Markdown を保存しない</li>
+              <li>React で通常描画し、<code>dangerouslySetInnerHTML</code> を使わない</li>
+              <li>Firestore Rules で編集権限を絞る</li>
+              <li>AI を使わないので <code>Generative Language API</code> は無効にする</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>今回は不要</h3>
+            <ul>
+              <li>WYSIWYG エディタ</li>
+              <li>HTML sanitizer</li>
+              <li>グラフ描画用 Canvas ライブラリ</li>
+              <li>サーバー側の複雑な検証 API</li>
+            </ul>
+          </div>
+        </div>
+        <pre style="margin-top: 16px;"><code>match /trees/{treeId}/versions/published {
+  allow read: if true;
+  allow write: if false;
+}
+
+match /trees/{treeId}/versions/draft {
+  allow read, write: if request.auth != null
+    &amp;&amp; request.auth.token.editor == true;
+}</code></pre>
+        <p style="margin-top: 14px;">
+          Firebase の Web 用 <code>apiKey</code> 自体は秘密鍵ではないが、AI を使わない前提ならそれで問題化しにくい。
+          気にすべきなのは、不要な API を有効にしないことと、編集権限を Firestore Rules で閉じること。
+        </p>
+      </section>
+
+      <section id="roadmap" class="section">
+        <h2>9. 実装順序</h2>
+        <ol>
+          <li>React SPA を作る。UI は左ツリー + 中央詳細 + 追加フォームの 2〜3 ペインにする。</li>
+          <li><code>TreeDraft</code> 型と <code>nodes[]</code> の単一状態を作る。</li>
+          <li>ノード追加を実装する。</li>
+          <li>未接続ノードを親へつなぐエッジ追加を実装する。</li>
+          <li>Firestore の <code>draft</code> 保存を実装する。</li>
+          <li>公開用の <code>published</code> コピーを実装する。</li>
+          <li>最後に公開ページを作る。公開側は編集 UI を持たせない。</li>
+        </ol>
+        <div class="callout good" style="margin-top: 14px;">
+          <p>
+            最初の 1 版では、ノード削除、並び替え、ドラッグ、検索、ミニマップを入れない方がよい。
+            これらはすべて状態モデルを複雑にし、使い捨てコードの寿命を縮める。
+          </p>
+        </div>
+      </section>
+
+      <section id="sources" class="section sources">
+        <h2>10. 参考情報</h2>
+        <ul>
+          <li>
+            D3 の tree layout は tidy tree を提供するが、基本はレイアウトエンジンであり編集 UI ではない:
+            <a href="https://d3js.org/d3-hierarchy/tree">d3-hierarchy tree</a>
+          </li>
+          <li>
+            Cytoscape.js の <code>breadthfirst</code> layout は階層表示向きだが、汎用グラフライブラリで UI は重い:
+            <a href="https://js.cytoscape.org/">Cytoscape.js</a>
+          </li>
+          <li>
+            vis-network の hierarchical layout も可能だが、Canvas ベースで木編集には過剰:
+            <a href="https://visjs.github.io/vis-network/examples/network/layout/hierarchicalLayoutWithoutPhysics.html">vis-network hierarchical layout</a>
+          </li>
+          <li>
+            Firebase の API key は Firebase 関連 API 用の識別子であり secret ではない:
+            <a href="https://firebase.google.com/docs/projects/api-keys">Firebase API keys</a>
+          </li>
+          <li>
+            Firebase Security Checklist でも API keys are not secret と明記されている:
+            <a href="https://firebase.google.com/support/guides/security-checklist">Firebase security checklist</a>
+          </li>
+          <li>
+            公開された Google API key と Gemini 利用の問題提起:
+            <a href="https://trufflesecurity.com/blog/google-api-keys-werent-secrets-but-then-gemini-changed-the-rules">Truffle Security article</a>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
