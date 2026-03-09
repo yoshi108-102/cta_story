@@ -6,7 +6,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { backendMode, firebaseServices } from "./firebase";
-import { createSeedTree, isTreeDraft } from "./tree-ops";
+import { createSeedTree, parseTreeDraft } from "./tree-ops";
 import { TreeDraft, TreeVersion } from "../types/tree";
 
 interface StoredTreePayload {
@@ -26,16 +26,7 @@ const parsePayload = (payload: DocumentData | unknown): TreeDraft | null => {
   }
 
   const record = payload as Record<string, unknown>;
-
-  if (isTreeDraft(record)) {
-    return record;
-  }
-
-  if (isTreeDraft(record.tree)) {
-    return record.tree;
-  }
-
-  return null;
+  return parseTreeDraft(record) ?? parseTreeDraft(record.tree);
 };
 
 const readLocalTree = (treeId: string, version: TreeVersion): TreeDraft | null => {

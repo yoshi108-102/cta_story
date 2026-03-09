@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { TreeOutline } from "../components/tree-outline";
 import { backendMode, getBackendWarning } from "../lib/firebase";
+import { getNodeKindDescription, getNodeKindLabel } from "../lib/node-kind";
+import { getAncestors, getChildren, getNode } from "../lib/tree-ops";
 import { getOrCreateDraft, getTreeVersion, publishDraft } from "../lib/tree-store";
 import { TreeDraft } from "../types/tree";
 
@@ -59,12 +61,33 @@ export const PublicPage = () => {
     });
   };
 
+  const selectNode = (nodeId: string) => {
+    if (!tree) {
+      return;
+    }
+
+    setSelectedNodeId(nodeId);
+    const ancestors = getAncestors(tree, nodeId).map((node) => node.id);
+    setExpandedNodeIds((prev) => {
+      const next = new Set(prev);
+      next.add(nodeId);
+      for (const ancestorId of ancestors) {
+        next.add(ancestorId);
+      }
+      return next;
+    });
+  };
+
+  const currentNode = tree ? getNode(tree, selectedNodeId) : undefined;
+  const currentAncestors = currentNode && tree ? getAncestors(tree, currentNode.id) : [];
+  const nextNodes = currentNode && tree ? getChildren(tree, currentNode.id) : [];
+
   return (
     <div className="page">
       <header className="page-header">
         <div>
           <h1>公開ビューア</h1>
-          <p className="muted">`/` は published を表示します。編集は `/admin` から行います。</p>
+          <p className="muted">`/` は CTA の published を表示します。編集は `/admin` から行います。</p>
           {getBackendWarning() ? <p className="badge">{getBackendWarning()}</p> : null}
         </div>
         <nav>
@@ -86,13 +109,56 @@ export const PublicPage = () => {
       {message ? <p className="muted">{message}</p> : null}
 
       {tree ? (
-        <TreeOutline
-          tree={tree}
-          selectedNodeId={selectedNodeId}
-          expandedNodeIds={expandedNodeIds}
-          onSelect={(nodeId) => setSelectedNodeId(nodeId)}
-          onToggle={toggleExpand}
-        />
+        <main className="viewer-grid">
+          <TreeOutline
+            tree={tree}
+            selectedNodeId={selectedNodeId}
+            expandedNodeIds={expandedNodeIds}
+            onSelect={selectNode}
+            onToggle={toggleExpand}
+          />
+          <section className="card">
+            <h3>CTAガイド</h3>
+            <p className="muted">現在ノードを基準に、関連する下位ノードを選んで確認してください。</p>
+            {currentNode ? (
+              <>
+                <div className="crumbs">
+                  {currentAncestors.map((ancestor) => (
+                    <span key={ancestor.id} className="crumb">
+                      {ancestor.label}
+                    </span>
+                  ))}
+                  <span className="crumb active">{currentNode.label}</span>
+                </div>
+                <div className="focus-node">
+                  <p className="kind">{getNodeKindLabel(currentNode.kind)}</p>
+                  <p className="muted">{getNodeKindDescription(currentNode.kind)}</p>
+                  <h4>{currentNode.label}</h4>
+                  <p className="note">{currentNode.note || "(noteなし)"}</p>
+                </div>
+                <div className="child-list">
+                  <h4>関連ノード</h4>
+                  {nextNodes.length === 0 ? (
+                    <p className="muted">このノードに紐づく下位ノードはありません。</p>
+                  ) : (
+                    <ul className="transition-list">
+                      {nextNodes.map((node) => (
+                        <li key={node.id}>
+                          <button type="button" className="transition-button" onClick={() => selectNode(node.id)}>
+                            <span className="kind">{getNodeKindLabel(node.kind)}</span>
+                            <span>{node.label}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            ) : (
+              <p className="muted">ノードを選択してください。</p>
+            )}
+          </section>
+        </main>
       ) : null}
     </div>
   );

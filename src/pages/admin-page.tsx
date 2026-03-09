@@ -1,13 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 import { AddNodeForm } from "../components/add-node-form";
 import { AttachNodeForm } from "../components/attach-node-form";
+import { EditNodeForm } from "../components/edit-node-form";
 import { AuthPanel } from "../components/auth-panel";
 import { NodeDetail } from "../components/node-detail";
 import { TreeOutline } from "../components/tree-outline";
 import { useEditorAuth } from "../hooks/use-editor-auth";
-import { getAncestors, getUnattachedNodes, addNode, attachExistingNode } from "../lib/tree-ops";
+import {
+  getAncestors,
+  getAddableKinds,
+  getEditableKinds,
+  getNode,
+  getUnattachedNodes,
+  addNode,
+  attachExistingNode,
+  updateNode,
+} from "../lib/tree-ops";
 import { getOrCreateDraft, publishDraft, saveDraft } from "../lib/tree-store";
-import { TreeDraft } from "../types/tree";
+import { NodeKind, TreeDraft } from "../types/tree";
 
 export const AdminPage = () => {
   const { user, loading: authLoading, error: authError, login, logout, isMock } = useEditorAuth();
@@ -80,7 +90,7 @@ export const AdminPage = () => {
 
   const handleAddNode = (input: {
     parentId: string;
-    kind: "problem" | "why" | "factor";
+    kind: NodeKind;
     label: string;
     note: string;
   }) => {
@@ -113,6 +123,27 @@ export const AdminPage = () => {
       setExpandedNodeIds((prev) => new Set(prev).add(selectedNodeId));
     } catch (error) {
       const text = error instanceof Error ? error.message : "接続に失敗しました。";
+      setMessage(text);
+    }
+  };
+
+  const handleUpdateNode = (input: {
+    nodeId: string;
+    kind: NodeKind;
+    label: string;
+    note: string;
+  }) => {
+    if (!tree) {
+      return;
+    }
+
+    try {
+      const nextTree = updateNode(tree, input);
+      setTree(nextTree);
+      setDirty(true);
+      setMessage("ノードを更新しました。保存するとdraftに反映されます。");
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "ノード更新に失敗しました。";
       setMessage(text);
     }
   };
@@ -160,14 +191,18 @@ export const AdminPage = () => {
     }
   };
 
+  const selectedNode = tree ? getNode(tree, selectedNodeId) ?? null : null;
+  const addableKinds = tree && selectedNode ? getAddableKinds(tree, selectedNode.id) : [];
+  const editableKinds = tree && selectedNode ? getEditableKinds(tree, selectedNode.id) : [];
   const unattachedNodes = tree ? getUnattachedNodes(tree) : [];
+  const attachableUnattachedNodes = unattachedNodes.filter((node) => addableKinds.includes(node.kind));
 
   return (
     <div className="page">
       <header className="page-header">
         <div>
           <h1>管理画面</h1>
-          <p className="muted">ノード追加 / エッジ追加のみの最小エディタです。</p>
+          <p className="muted">CTAフォーマット準拠のノード編集 / 追加 / 接続エディタです。</p>
         </div>
         <nav>
           <a href="/">公開ビューへ</a>
@@ -214,8 +249,13 @@ export const AdminPage = () => {
           />
           <NodeDetail tree={tree} selectedNodeId={selectedNodeId} />
           <div className="stack">
-            <AddNodeForm parentId={selectedNodeId} onSubmit={handleAddNode} />
-            <AttachNodeForm nodes={unattachedNodes} onSubmit={handleAttachNode} />
+            <EditNodeForm node={selectedNode} editableKinds={editableKinds} onSubmit={handleUpdateNode} />
+            <AddNodeForm parentId={selectedNodeId} allowedKinds={addableKinds} onSubmit={handleAddNode} />
+            <AttachNodeForm
+              nodes={attachableUnattachedNodes}
+              onSubmit={handleAttachNode}
+              emptyMessage="接続可能な未接続ノードはありません。"
+            />
           </div>
         </main>
       ) : null}

@@ -7,6 +7,7 @@
 - 公開ビュー: `/` で `published` を表示
 - 管理画面: `/admin` で `draft` 編集
 - 編集操作: ノード追加 / 未接続ノードの接続（エッジ追加）
+- CTA ノード種別: `task_step` / `cognitive_demand` / `cue_signal` / `expert_strategy` / `novice_error`
 - データモデル: `parentId` ベースの単一 JSON
 - 保存先:
   - Firebase 設定あり: Firestore (`trees/{treeId}/versions/{draft|published}`)

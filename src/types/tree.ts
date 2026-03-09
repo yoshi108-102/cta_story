@@ -1,4 +1,9 @@
-export type NodeKind = "problem" | "why" | "factor";
+export type NodeKind =
+  | "task_step"
+  | "cognitive_demand"
+  | "cue_signal"
+  | "expert_strategy"
+  | "novice_error";
 
 export interface TreeNode {
   id: string;

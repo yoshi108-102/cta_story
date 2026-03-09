@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CTAフォーマット再考メモ</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f2efe8;
+        --paper: #fffdf8;
+        --ink: #1f1a17;
+        --muted: #655b52;
+        --line: #d8ccbc;
+        --accent: #8e3f1d;
+        --accent-soft: #f7e5db;
+        --good: #28563a;
+        --warn: #8a3f18;
+        --bad: #7b2f2f;
+        --shadow: 0 14px 30px rgba(41, 30, 18, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at right top, rgba(142, 63, 29, 0.08), transparent 28%),
+          linear-gradient(180deg, #ece2d5 0%, var(--bg) 280px);
+        line-height: 1.72;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 32px));
+        margin: 24px auto 48px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 28px 30px;
+        margin-bottom: 18px;
+      }
+
+      .section {
+        padding: 24px 26px;
+        margin-bottom: 18px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.35;
+      }
+
+      h1 {
+        margin-top: 12px;
+        font-size: clamp(28px, 4vw, 40px);
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+
+      p,
+      ul,
+      ol,
+      pre,
+      table {
+        margin: 0;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .lead {
+        margin-top: 14px;
+        color: var(--muted);
+        max-width: 72ch;
+      }
+
+      .meta {
+        margin-top: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .meta span {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        background: #fff;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        background: #fff;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2em;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .callout {
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        padding: 12px 14px;
+        background: #fff9f5;
+      }
+
+      .callout.good {
+        background: #f1faf3;
+        border-color: #bfdac4;
+        color: var(--good);
+      }
+
+      .callout.warn {
+        background: #fff6ed;
+        border-color: #e7c7a8;
+        color: var(--warn);
+      }
+
+      .callout.bad {
+        background: #fff3f3;
+        border-color: #e5c2c2;
+        color: var(--bad);
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      .table th,
+      .table td {
+        padding: 10px;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th {
+        width: 20%;
+        color: var(--muted);
+      }
+
+      pre {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        background: #fff;
+        overflow-x: auto;
+        font-size: 13px;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      }
+
+      .small {
+        color: var(--muted);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">再考メモ</span>
+        <h1>CTAフォーマット再考</h1>
+        <p class="lead">
+          現行の <code>problem / why / factor</code> は「なぜなぜ分析」には使えるが、ACTA/CTAの本来目的
+          (認知的難所、判断手掛かり、熟練者戦略、初心者エラー) を保持できていない。<br />
+          本メモでは、樹形UIを活かしつつCTAフォーマットへ寄せるための採用案を定義する。
+        </p>
+        <div class="meta">
+          <span>対象: cta_story</span>
+          <span>作成日: 2026-03-09</span>
+          <span>ステータス: 提案</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>1. まず何がズレているか</h2>
+        <div class="grid two">
+          <div class="card">
+            <h3>現行モデルの強み</h3>
+            <ul>
+              <li>木構造としては単純で編集が容易</li>
+              <li>因果を下方向に掘る読み方が明快</li>
+              <li>最小UIで運用できる</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>CTA観点での不足</h3>
+            <ul>
+              <li>「なぜ」以外の認知知識を記録できない</li>
+              <li>手掛かり(cue)と戦略(strategy)が混在する</li>
+              <li>初心者エラーを独立して扱えない</li>
+              <li>Task DiagramとCognitive Demands Tableへの接続が弱い</li>
+            </ul>
+          </div>
+        </div>
+        <p class="small" style="margin-top: 12px;">
+          判定: 現行は「原因分析ツリー」としては有効だが、「CTA知識ベース」としては情報軸が不足。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>2. CTAとして最低限必要な情報軸</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>軸</th>
+              <th>意味</th>
+              <th>現行対応</th>
+              <th>必要アクション</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Task Step</td>
+              <td>作業工程の文脈</td>
+              <td>曖昧</td>
+              <td>ノード種別または属性として明示</td>
+            </tr>
+            <tr>
+              <td>Cognitive Demand</td>
+              <td>どこが難しいか</td>
+              <td>一部whyに埋没</td>
+              <td>独立ノード化</td>
+            </tr>
+            <tr>
+              <td>Cue / Signal</td>
+              <td>何を見て判断したか</td>
+              <td>noteに混在</td>
+              <td>独立ノード化</td>
+            </tr>
+            <tr>
+              <td>Expert Strategy</td>
+              <td>熟練者の打ち手・着眼</td>
+              <td>noteに混在</td>
+              <td>独立ノード化</td>
+            </tr>
+            <tr>
+              <td>Novice Error</td>
+              <td>初学者の典型的ミス</td>
+              <td>未定義</td>
+              <td>独立ノード化</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>3. フォーマット候補の比較</h2>
+        <div class="grid three">
+          <div class="card">
+            <h3>案A: 現行拡張</h3>
+            <p class="small">problem/why/factorを維持し、note規約だけ追加</p>
+            <div class="callout warn" style="margin-top: 10px;">
+              実装は最小だが、入力品質が人依存になり、CTA再利用性が上がりにくい。
+            </div>
+          </div>
+          <div class="card">
+            <h3>案B: 表形式中心</h3>
+            <p class="small">Cognitive Demands Tableを主にして木構造を補助化</p>
+            <div class="callout bad" style="margin-top: 10px;">
+              CTA忠実度は高いが、現行UI/コードとの乖離が大きく改修コストが高い。
+            </div>
+          </div>
+          <div class="card">
+            <h3>案C: ハイブリッド</h3>
+            <p class="small">木構造を維持しつつノード種別をCTA軸に再定義</p>
+            <div class="callout good" style="margin-top: 10px;">
+              現行との連続性を保ちながら、CTA情報を構造化して持てる。
+            </div>
+          </div>
+        </div>
+        <div class="callout good" style="margin-top: 14px;">
+          採用推奨: <strong>案C (ハイブリッド)</strong>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>4. 採用推奨フォーマット (案C)</h2>
+        <h3>4-1. ノード種別</h3>
+        <pre><code>type NodeKind =
+  | "task_step"
+  | "cognitive_demand"
+  | "cue_signal"
+  | "expert_strategy"
+  | "novice_error";</code></pre>
+
+        <h3 style="margin-top: 14px;">4-2. 関係ルール (最小)</h3>
+        <ul>
+          <li>root は <code>task_step</code> または分析テーマノード</li>
+          <li><code>task_step</code> の子に <code>cognitive_demand</code> を置く</li>
+          <li><code>cognitive_demand</code> の子に <code>cue_signal / expert_strategy / novice_error</code> を置く</li>
+          <li>全ノードは単一親を維持 (木構造を維持)</li>
+        </ul>
+
+        <h3 style="margin-top: 14px;">4-3. 例 (JSON)</h3>
+        <pre><code>{
+  "treeId": "marubou-001",
+  "title": "矯正工程 CTA",
+  "rootNodeId": "n-root",
+  "nodes": [
+    {
+      "id": "n-root",
+      "parentId": null,
+      "kind": "task_step",
+      "label": "矯正前確認",
+      "note": "Task Diagram: Step 1",
+      "createdAt": "2026-03-09T00:00:00Z"
+    },
+    {
+      "id": "n-101",
+      "parentId": "n-root",
+      "kind": "cognitive_demand",
+      "label": "曲がりの異常兆候を早期検知する必要がある",
+      "note": "見逃すと後工程で不良化",
+      "createdAt": "2026-03-09T00:01:00Z"
+    },
+    {
+      "id": "n-102",
+      "parentId": "n-101",
+      "kind": "cue_signal",
+      "label": "先端部の微小な振れ幅",
+      "note": "熟練者は搬送音の変化も手掛かりにする",
+      "createdAt": "2026-03-09T00:02:00Z"
+    },
+    {
+      "id": "n-103",
+      "parentId": "n-101",
+      "kind": "expert_strategy",
+      "label": "停止前に2点確認して補正条件を先決めする",
+      "note": "Job Smarts",
+      "createdAt": "2026-03-09T00:03:00Z"
+    },
+    {
+      "id": "n-104",
+      "parentId": "n-101",
+      "kind": "novice_error",
+      "label": "目視1点だけで通過判定してしまう",
+      "note": "典型的失敗",
+      "createdAt": "2026-03-09T00:04:00Z"
+    }
+  ]
+}</code></pre>
+      </section>
+
+      <section class="section">
+        <h2>5. UIへの落とし込み</h2>
+        <div class="grid two">
+          <div class="card">
+            <h3>ツリー側で見せるもの</h3>
+            <ul>
+              <li>ノード種別バッジをCTA語彙へ差し替え</li>
+              <li>選択経路の強調は現行仕様を踏襲</li>
+              <li>子ノード件数を「関連知識数」として表示</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>詳細側で見せるもの</h3>
+            <ul>
+              <li>選択ノードのCTAカテゴリ説明</li>
+              <li>親子の意味関係 (Step → Demand → Cue/Strategy/Error)</li>
+              <li>将来のTable出力用キー (source/interviewRef など) を追加余地として保持</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>6. 移行方針 (現行データから)</h2>
+        <ol>
+          <li><code>problem</code> は暫定で <code>task_step</code> に変換する</li>
+          <li><code>why</code> は暫定で <code>cognitive_demand</code> に変換する</li>
+          <li><code>factor</code> は暫定で <code>cue_signal</code> に変換し、必要に応じて手動修正する</li>
+          <li>編集UIにノード種別説明を表示し、再分類の判断を支援する</li>
+        </ol>
+        <div class="callout warn" style="margin-top: 12px;">
+          旧データは意味が混在しているため、100%自動変換は不可。初回は運用者レビュー前提で進める。
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>7. 再考の結論</h2>
+        <div class="callout good">
+          いまの実装資産 (木構造UI・編集フロー) を活かすには、<strong>構造は維持して語彙をCTA化する</strong>のが最適。
+          先にノード種別と関係ルールを差し替え、その後にCognitive Demands Table出力を追加する順が安全。
+        </div>
+        <p style="margin-top: 12px;">
+          次の実装フェーズは、<code>NodeKind</code> の再定義、既存フォーム選択肢の更新、seedデータの置換、表示ラベル更新の4点を最小セットとする。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

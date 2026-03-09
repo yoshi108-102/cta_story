@@ -4,9 +4,10 @@ import { TreeNode } from "../types/tree";
 interface AttachNodeFormProps {
   nodes: TreeNode[];
   onSubmit: (targetNodeId: string) => void;
+  emptyMessage?: string;
 }
 
-export const AttachNodeForm = ({ nodes, onSubmit }: AttachNodeFormProps) => {
+export const AttachNodeForm = ({ nodes, onSubmit, emptyMessage }: AttachNodeFormProps) => {
   const defaultNodeId = useMemo(() => nodes[0]?.id ?? "", [nodes]);
   const [targetNodeId, setTargetNodeId] = useState(defaultNodeId);
 
@@ -26,7 +27,7 @@ export const AttachNodeForm = ({ nodes, onSubmit }: AttachNodeFormProps) => {
     <form className="card form" onSubmit={submit}>
       <h3>未接続ノードを接続</h3>
       {nodes.length === 0 ? (
-        <p className="muted">未接続ノードはありません。</p>
+        <p className="muted">{emptyMessage ?? "未接続ノードはありません。"}</p>
       ) : (
         <>
           <label>

@@ -1,49 +1,60 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { nodeKindOptions } from "../lib/node-kind";
-import { NodeKind } from "../types/tree";
+import { NodeKind, TreeNode } from "../types/tree";
 
-interface AddNodeFormProps {
-  parentId: string;
-  allowedKinds: NodeKind[];
-  onSubmit: (input: { parentId: string; kind: NodeKind; label: string; note: string }) => void;
+interface EditNodeFormProps {
+  node: TreeNode | null;
+  editableKinds: NodeKind[];
+  onSubmit: (input: { nodeId: string; kind: NodeKind; label: string; note: string }) => void;
 }
 
-export const AddNodeForm = ({ parentId, allowedKinds, onSubmit }: AddNodeFormProps) => {
+export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProps) => {
   const selectableKinds = useMemo(
-    () => nodeKindOptions.filter((option) => allowedKinds.includes(option.value)),
-    [allowedKinds],
+    () => nodeKindOptions.filter((option) => editableKinds.includes(option.value)),
+    [editableKinds],
   );
-  const defaultKind = selectableKinds[0]?.value ?? null;
+  const [kind, setKind] = useState<NodeKind | "">("");
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
-  const [kind, setKind] = useState<NodeKind | "">("");
 
   useEffect(() => {
-    setKind(defaultKind ?? "");
-  }, [defaultKind, parentId]);
+    if (!node) {
+      setKind("");
+      setLabel("");
+      setNote("");
+      return;
+    }
+
+    if (editableKinds.includes(node.kind)) {
+      setKind(node.kind);
+    } else {
+      setKind(editableKinds[0] ?? "");
+    }
+    setLabel(node.label);
+    setNote(node.note);
+  }, [editableKinds, node?.id, node?.kind, node?.label, node?.note]);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!kind) {
+    if (!node || !kind) {
       return;
     }
 
     onSubmit({
-      parentId,
+      nodeId: node.id,
       kind,
       label,
       note,
     });
-    setLabel("");
-    setNote("");
-    setKind(defaultKind ?? "");
   };
 
   return (
     <form className="card form" onSubmit={submit}>
-      <h3>子ノードを追加</h3>
-      {selectableKinds.length === 0 ? (
-        <p className="muted">選択中ノードには、CTAルール上 追加できる子ノード種別がありません。</p>
+      <h3>選択ノードを編集</h3>
+      {!node ? (
+        <p className="muted">ノードを選択してください。</p>
+      ) : selectableKinds.length === 0 ? (
+        <p className="muted">このノードはCTAルール上、種別変更できません。</p>
       ) : (
         <>
           <label>
@@ -75,7 +86,7 @@ export const AddNodeForm = ({ parentId, allowedKinds, onSubmit }: AddNodeFormPro
               maxLength={1000}
             />
           </label>
-          <button type="submit">選択ノードの子として追加</button>
+          <button type="submit">選択ノードを更新</button>
         </>
       )}
     </form>
