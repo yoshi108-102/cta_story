@@ -2,7 +2,7 @@
 *.o
 *.a
 *.so
-
+node_modules/
 # Folders
 _obj
 _test
