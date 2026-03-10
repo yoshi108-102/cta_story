@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progressive Inquiry / Knowledge Building / Self-Explanation サーベイ</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f1e8;
+        --paper: #fffdf8;
+        --ink: #1f1a17;
+        --muted: #62584f;
+        --line: #d6c7b3;
+        --accent: #21574a;
+        --accent-soft: #d9ece6;
+        --accent-strong: #163a32;
+        --warm: #a0522d;
+        --warm-soft: #f8e5d7;
+        --gold: #8b6a1f;
+        --gold-soft: #f3ebcf;
+        --shadow: 0 18px 45px rgba(44, 33, 18, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top right, rgba(33, 87, 74, 0.08), transparent 28%),
+          radial-gradient(circle at left 10% top 20%, rgba(160, 82, 45, 0.08), transparent 24%),
+          linear-gradient(180deg, #efe7d9 0, var(--bg) 240px);
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        line-height: 1.78;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      a:hover {
+        color: var(--accent-strong);
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 24px auto 56px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 30px 32px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -80px -80px auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(33, 87, 74, 0.12), transparent 68%);
+        pointer-events: none;
+      }
+
+      .section {
+        padding: 26px 28px;
+        margin-top: 18px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.3;
+      }
+
+      h1 {
+        margin-top: 12px;
+        font-size: clamp(30px, 4.4vw, 46px);
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+        letter-spacing: 0.01em;
+      }
+
+      h2 {
+        font-size: 25px;
+        margin-bottom: 14px;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      p,
+      ul,
+      ol,
+      table {
+        margin: 0;
+      }
+
+      p + p,
+      p + ul,
+      p + ol,
+      ul + p,
+      ol + p,
+      .stack > * + * {
+        margin-top: 10px;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2em;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        margin-top: 16px;
+        max-width: 74ch;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .hero-grid,
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero-grid {
+        grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.95fr);
+        margin-top: 20px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card,
+      .callout {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .card {
+        padding: 16px 16px 18px;
+      }
+
+      .callout {
+        padding: 14px 16px;
+      }
+
+      .callout.primary {
+        background: linear-gradient(135deg, #f6fbf9, #ffffff);
+      }
+
+      .callout.warn {
+        background: linear-gradient(135deg, #fff8f3, #ffffff);
+        border-color: #e7ccb7;
+      }
+
+      .callout.note {
+        background: linear-gradient(135deg, #fbfaf4, #ffffff);
+        border-color: #e3d9b9;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        font-size: 12px;
+        background: #fff;
+        color: var(--muted);
+      }
+
+      .paper-title {
+        margin-top: 4px;
+        font-size: 20px;
+      }
+
+      .small {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .matrix {
+        overflow-x: auto;
+      }
+
+      .table {
+        width: 100%;
+        min-width: 860px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      .table th,
+      .table td {
+        padding: 12px 12px;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th {
+        color: var(--muted);
+        font-weight: 700;
+        background: rgba(33, 87, 74, 0.04);
+      }
+
+      .paper-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .paper {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 20px;
+        background:
+          linear-gradient(180deg, rgba(33, 87, 74, 0.03), transparent 80px),
+          #fff;
+      }
+
+      .paper-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .tag.full {
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+      }
+
+      .tag.abstract {
+        background: var(--gold-soft);
+        color: #5f4a14;
+      }
+
+      .tag.arxiv {
+        background: var(--warm-soft);
+        color: #7e3d1f;
+      }
+
+      .subgrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .subcard {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px 13px;
+        background: #fffdfa;
+      }
+
+      .subcard h4 {
+        margin: 0 0 8px;
+        font-size: 14px;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .step {
+        position: relative;
+        padding: 14px 12px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .step .num {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .refs {
+        display: grid;
+        gap: 12px;
+      }
+
+      .ref-item {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px 15px;
+        background: #fff;
+      }
+
+      .footer {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+        background: #f2efe9;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.92em;
+      }
+
+      @media (max-width: 860px) {
+        .page {
+          width: min(100%, calc(100% - 20px));
+          margin: 10px auto 32px;
+        }
+
+        .hero,
+        .section {
+          border-radius: 20px;
+          padding: 22px 18px;
+        }
+
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+
+        h2 {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">Survey Note</span>
+        <h1>Progressive Inquiry / Knowledge Building / Self-Explanation / LLM診断 サーベイ</h1>
+        <p class="lead">
+          あなたが目指している「学習者のコード説明を、共同探究とAI支援で前進させる」方向に近い6本を横断整理した。
+          ここでは、<strong>何を知識対象として扱うか</strong>、<strong>誰が認知的責任を持つか</strong>、
+          <strong>AIはどこまで介入すべきか</strong>の3点を中心に読む。
+        </p>
+        <div class="meta">
+          <span class="chip">対象領域: Progressive Inquiry</span>
+          <span class="chip">Knowledge Building</span>
+          <span class="chip">Generative Learning</span>
+          <span class="chip">LLM formative assessment</span>
+          <span class="chip">作成日: 2026-03-09</span>
+        </div>
+
+        <div class="hero-grid">
+          <div class="callout primary stack">
+            <h3>先に結論</h3>
+            <p>
+              この文献群はかなり一貫している。良い設計は、学習者の投稿を「採点対象」ではなく
+              <strong>共同体が改善する知識オブジェクト</strong>として扱い、
+              <code>problem → working theory → scientific explanation → improved idea</code>
+              の循環を支える。
+            </p>
+            <p>
+              ただし、self-explanation は常に効くわけではない。前提知識、負荷、プロンプトの焦点がずれると逆効果になりうる。
+              さらに、LLM は説明がほぼ正しい場合に誤検出しやすいので、AI は
+              <strong>断定者</strong>ではなく<strong>暫定診断者</strong>として使う方が筋が良い。
+            </p>
+          </div>
+
+          <div class="grid">
+            <div class="card stack">
+              <h3>設計含意 1</h3>
+              <p><strong>投稿単位</strong>は「答え」ではなく「今の説明・仮説・根拠」。</p>
+              <p class="small">Muukkonen / Scardamalia 系の中核。</p>
+            </div>
+            <div class="card stack">
+              <h3>設計含意 2</h3>
+              <p><strong>責任の中心</strong>は教師やAIでなく共同体。AIが全部説明すると理論に逆行する。</p>
+              <p class="small">Scardamalia 2002 の中心命題。</p>
+            </div>
+            <div class="card stack">
+              <h3>設計含意 3</h3>
+              <p><strong>AIの主タスク</strong>はギャップ発見、比較、再質問、根拠要求、要約。</p>
+              <p class="small">Fiorella / Rittle-Johnson / Oli 2025 を統合した推論。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>1. 6本を一枚で見る</h2>
+        <div class="matrix">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>文献</th>
+                <th>中心概念</th>
+                <th>何が見えるか</th>
+                <th>今回の設計への効き方</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Muukkonen et al. (1999)</td>
+                <td>Progressive Inquiry と FLE-Tools</td>
+                <td><code>problem / working theory / scientific explanation</code> を直接支える足場</td>
+                <td>投稿タイプ設計と探究フローの原型になる</td>
+              </tr>
+              <tr>
+                <td>Scardamalia &amp; Bereiter (2014)</td>
+                <td>Knowledge Building / Knowledge Creation</td>
+                <td>投稿を共同体知識の改善対象として扱う理論</td>
+                <td>「説明を改善する場」を単発回答から共同知識づくりへ変える</td>
+              </tr>
+              <tr>
+                <td>Scardamalia (2002)</td>
+                <td>Collective Cognitive Responsibility</td>
+                <td>認知的責任を教師から共同体へ移す発想</td>
+                <td>AIが正解配布機になる設計を抑制する規範になる</td>
+              </tr>
+              <tr>
+                <td>Fiorella (2023)</td>
+                <td>Generative Sense-Making</td>
+                <td>self-explanation を explaining / visualizing / enacting の一部として再配置</td>
+                <td>説明だけでなく図示・トレース・動作化を支援対象にできる</td>
+              </tr>
+              <tr>
+                <td>Rittle-Johnson &amp; Loehr (2017)</td>
+                <td>Self-explanation の4つの制約</td>
+                <td>言語化支援が効かない条件を整理</td>
+                <td>誰に・いつ・何を説明させるかのガードレールになる</td>
+              </tr>
+              <tr>
+                <td>Oli et al. (2025)</td>
+                <td>LLM によるコード説明のギャップ診断</td>
+                <td>LLM が説明の欠落や誤概念をどこまで拾えるか</td>
+                <td>AIフィードバックは有望だが、誤検出抑制が必須だと示す</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>2. 論文ごとの要点</h2>
+        <div class="paper-grid">
+          <article class="paper">
+            <div class="paper-header">
+              <span class="tag full">一次情報: full text</span>
+              <span class="tag full">CSCL 1999</span>
+            </div>
+            <h3 class="paper-title">Muukkonen, Hakkarainen, Lakkala (1999)</h3>
+            <div class="stack">
+              <p>
+                この論文の直接的な価値は、まさにあなたが見たいと言っていた
+                <code>problem / working theory / scientific explanation</code> を、進行中の探究のための
+                <strong>投稿カテゴリ</strong>として設計している点にある。
+              </p>
+              <p>
+                Progressive Inquiry は、文脈設定、問い駆動、working theory の生成、知識前進の批判的評価、
+                新しい科学的情報の探索、deepening inquiry、shared expertise から成る。
+                つまり「まず仮説を出し、次に資料を探す」のであって、最初から正解を取りに行く設計ではない。
+              </p>
+            </div>
+            <div class="subgrid">
+              <div class="subcard stack">
+                <h4>何を足したか</h4>
+                <p>FLE-Tools の KB module は投稿時に inquiry scaffold を選ばせ、議論を expert-like processing に寄せた。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>重要な結果</h4>
+                <p>13名・125投稿の分析では、問題 25.5%、working theory 38.8%、scientific explanation 6.2%。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>読むべき含意</h4>
+                <p>足場だけでは authoritative information への接続は弱い。scientific explanation を増やす追加設計が要る。</p>
+              </div>
+            </div>
+            <div class="callout warn stack" style="margin-top: 14px;">
+              <h3>設計への示唆</h3>
+              <p>
+                UIとしては、説明を1本の自由記述欄に閉じ込めるより、少なくとも
+                <code>問い</code>、<code>いまの説明</code>、<code>参照した根拠</code>、<code>再説明</code>
+                を分けた方が理論整合的。
+              </p>
+            </div>
+          </article>
+
+          <article class="paper">
+            <div class="paper-header">
+              <span class="tag full">一次情報: full text</span>
+              <span class="tag full">理論の土台</span>
+            </div>
+            <h3 class="paper-title">Scardamalia &amp; Bereiter, Knowledge Building and Knowledge Creation</h3>
+            <div class="stack">
+              <p>
+                この章の中心は、学習と knowledge building を区別し、
+                <strong>学生の仕事を「本人の頭の中の証拠」ではなく、共同体知識への寄与で評価する</strong>ことにある。
+                ここでは community knowledge advancement, idea improvement, knowledge-building discourse,
+                constructive use of authoritative information が主題化される。
+              </p>
+              <p>
+                特に強いのは、Knowledge Building を
+                <strong>community knowledge の前進を目指す文化的実践</strong>として捉える点だ。
+                個人学習は重要だが、一次目標ではなくしばしば副産物として位置づけられる。
+              </p>
+            </div>
+            <div class="subgrid">
+              <div class="subcard stack">
+                <h4>キーメッセージ</h4>
+                <p>「idea improvement は中心原理」であり、改善責任を教師でなく学生側に寄せる。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>重要な区別</h4>
+                <p><strong>belief mode</strong> は知識主張の評価、<strong>design mode</strong> は知識そのものの改善。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>今回への意味</h4>
+                <p>コード説明を「正しいか」で終えると belief mode に留まる。改善可能な説明を育てると design mode になる。</p>
+              </div>
+            </div>
+            <div class="callout primary stack" style="margin-top: 14px;">
+              <h3>設計への示唆</h3>
+              <p>
+                投稿を「解答」ではなく「improvable idea」と見なし、他者の説明に build-on できる構造を持たせるべき。
+                共同体の要約・統合・再定義を支えるビューやスレッドが重要になる。
+              </p>
+            </div>
+          </article>
+
+          <article class="paper">
+            <div class="paper-header">
+              <span class="tag full">一次情報: full text</span>
+              <span class="tag full">2002 章</span>
+            </div>
+            <h3 class="paper-title">Scardamalia (2002), Collective Cognitive Responsibility for the Advancement of Knowledge</h3>
+            <div class="stack">
+              <p>
+                ここでの定義は明快で、collective responsibility は
+                <strong>集団の成功責任がリーダーに集中せず全員に分配される状態</strong>であり、
+                collective cognitive responsibility はそこに
+                <strong>「何を知るべきかを皆で把握し続ける責任」</strong>を加えたものだ。
+              </p>
+              <p>
+                学校はしばしばこの責任を保持してしまう。Teacher A/B/C の議論では、望ましいのは
+                <strong>戦略的認知活動を学生に渡す</strong> Teacher C だが、現実には教師が工程設計も認知責任も握り続けやすい。
+              </p>
+            </div>
+            <div class="subgrid">
+              <div class="subcard stack">
+                <h4>重要原理</h4>
+                <p>real ideas, idea diversity, rise above, epistemic agency, constructive use of authoritative sources, embedded assessment。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>技術の役割</h4>
+                <p>CSILE / Knowledge Forum は、共同体の記憶と進行中のアイデア空間を可視化し、分散責任を支えた。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>今回への警告</h4>
+                <p>AIが「あなたの理解状態を判定して次を配る」だけになると、Teacher B を再生産する。</p>
+              </div>
+            </div>
+            <div class="callout warn stack" style="margin-top: 14px;">
+              <h3>設計への示唆</h3>
+              <p>
+                AIの役割は、正解の配布ではなく、
+                <strong>共同体が次に何を知るべきかを見える化すること</strong>に寄せる方がよい。
+                例えば「未解決の問い」「競合する説明」「不足している根拠」を前面に出す設計が合う。
+              </p>
+            </div>
+          </article>
+
+          <article class="paper">
+            <div class="paper-header">
+              <span class="tag full">一次情報: open access</span>
+              <span class="tag full">Educational Psychology Review</span>
+            </div>
+            <h3 class="paper-title">Fiorella (2023), Making Sense of Generative Learning</h3>
+            <div class="stack">
+              <p>
+                この論文は self-explanation を単独技法としてではなく、
+                <strong>explaining / visualizing / enacting</strong> の3モードからなる generative sense-making の一部に置き直す。
+                explaining は知識を一般化し、visualizing は整理し、enacting はシミュレートする。
+              </p>
+              <p>
+                重要なのは、visualizing と enacting が explaining を支えるという見取り図だ。
+                つまり、学習者に「説明して」とだけ求めるより、図示・トレース・手続きの動的表現が先に要る場合がある。
+              </p>
+            </div>
+            <div class="subgrid">
+              <div class="subcard stack">
+                <h4>AIとの接点</h4>
+                <p>GLA の外化産物は formative assessment に使え、そこから instruction を適応させられる。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>失敗条件</h4>
+                <p>barriers は cognitive / metacognitive / motivational の3群。知識不足や戦略不足では支援が空回りする。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>今回への意味</h4>
+                <p>コード説明支援は文章だけでなく、変数トレース、制御フロー図、実行の可視化を含めるべき。</p>
+              </div>
+            </div>
+            <div class="callout primary stack" style="margin-top: 14px;">
+              <h3>設計への示唆</h3>
+              <p>
+                AIは説明文の添削者だけでなく、<strong>説明を支える外化装置</strong>である方が強い。
+                例として、コード説明前に「1ループ分だけ状態変化を可視化する」「処理の意図を図にしてから言語化する」が考えられる。
+              </p>
+            </div>
+          </article>
+
+          <article class="paper">
+            <div class="paper-header">
+              <span class="tag abstract">一次情報: abstract</span>
+              <span class="tag abstract">制約条件</span>
+            </div>
+            <h3 class="paper-title">Rittle-Johnson &amp; Loehr (2017), Eliciting Explanations</h3>
+            <div class="stack">
+              <p>
+                このレビューは、self-explanation が有効でも万能ではないと整理する。制約は4つある。
+                1つ目は、self-explanation は特定種類の情報に注意を向けるため、促進される学習成果と領域が限定されること。
+                2つ目は、何を説明させるか次第で逆効果があること。3つ目は、説明プロンプトが他の重要情報から注意を奪うこと。
+                4つ目は、場合によっては他の指導法の方が有効なこと。
+              </p>
+              <p>
+                かなり実務的な含意として、<strong>説明させれば深く学ぶ</strong>と単純化してはいけない。
+                プロンプトは学習目標に揃っていないと危険だ。
+              </p>
+            </div>
+            <div class="subgrid">
+              <div class="subcard stack">
+                <h4>何に効くか</h4>
+                <p>一般原理やヒューリスティクスを使う transfer 課題には強い。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>何が危ないか</h4>
+                <p>自分の選択や手順の正当化を促すと、条件次第では誤学習や表層化を招く。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>今回への意味</h4>
+                <p>コード説明では「なぜこの文が必要か」だけでなく、「どの原理・状態変化を押さえるべきか」を指定する必要がある。</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="paper">
+            <div class="paper-header">
+              <span class="tag arxiv">一次情報: arXiv HTML</span>
+              <span class="tag arxiv">LLM評価</span>
+            </div>
+            <h3 class="paper-title">Oli et al. (2025), Can LLMs Identify Gaps and Misconceptions in Students' Code Explanations?</h3>
+            <div class="stack">
+              <p>
+                この論文は、コード説明に対して LLM が欠落や誤概念を指摘できるかを正面から扱う。
+                対象は DeepCode 由来の Java / Python コード説明で、zero-shot, few-shot, supervised fine-tuning, ORPO を比較する。
+              </p>
+              <p>
+                結果として、単純 prompting では GPT-4 が LLaMA3 / Mistral より良いが、
+                <strong>fine-tuning や preference optimization の方が総じて強い</strong>。
+                ただし致命的に重要なのは、説明がほぼ正しいケースで
+                <strong>存在しない問題を捏造しやすい</strong>点で、質的分析サンプルでは 34% でその傾向が出た。
+              </p>
+            </div>
+            <div class="subgrid">
+              <div class="subcard stack">
+                <h4>使える点</h4>
+                <p>LLM は欠落・誤概念の候補出しには使える。特に tuned model は有望。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>限界</h4>
+                <p>正しい説明への過剰診断がある。さらにデータは expert explanation を基にした変形生成が多く、一般化は慎重に読むべき。</p>
+              </div>
+              <div class="subcard stack">
+                <h4>今回への意味</h4>
+                <p>AIの出力は「診断候補」として提示し、人間や共同体の再検討を前提にした方が安全。</p>
+              </div>
+            </div>
+            <div class="callout warn stack" style="margin-top: 14px;">
+              <h3>設計への示唆</h3>
+              <p>
+                AIに「ここが間違い」と断言させるより、
+                <strong>不足している可能性がある観点</strong>や<strong>確認すべき行の候補</strong>として返し、
+                参照根拠や confidence を添える設計が望ましい。
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>3. 横断的にどう読むか</h2>
+        <div class="grid two">
+          <div class="callout primary stack">
+            <h3>共通して強いこと</h3>
+            <ul>
+              <li>知識前進は、個人の正答率よりも、<strong>公的に共有されたアイデアの改善</strong>として扱われる。</li>
+              <li>良い学習環境は、問題設定・仮説・批判・根拠参照・再説明を循環させる。</li>
+              <li>外化された産物は、評価物であると同時に次の思考を生む作業対象でもある。</li>
+            </ul>
+          </div>
+          <div class="callout warn stack">
+            <h3>共通して弱いところ / 注意点</h3>
+            <ul>
+              <li>self-explanation は条件付きで効く。知識不足や負荷過多では崩れる。</li>
+              <li>scaffold を置くだけでは authoritative information の統合は自動化されない。</li>
+              <li>LLM は near-correct explanation に過剰介入しやすい。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout note stack" style="margin-top: 16px;">
+          <h3>文献横断からの推論</h3>
+          <p>
+            以下は複数文献を束ねた<strong>推論</strong>だが、あなたの構想に最も直接つながる。
+            うまくいくAI支援は「説明を代行するAI」ではなく、
+            <strong>共同体が説明を改善し続けるための認知インフラ</strong>として振る舞う。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>4. 今の構想に落とすなら</h2>
+        <p>
+          文献に最も整合する実装像は、学習者のコード説明を単発採点せず、
+          下のような知識前進ループとして扱うことだ。ここで重要なのは、
+          <strong>入口は Problem 固定ではなく Seed である</strong>ことだ。
+        </p>
+        <div class="flow">
+          <div class="step">
+            <div class="num">1</div>
+            <strong>Seed</strong>
+            <span>問い、アイデア、違和感のいずれかから探究を始める。</span>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <strong>Problem / Working Theory</strong>
+            <span>問い先行なら Problem を、アイデア先行なら Working Theory を先に立てる。</span>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <strong>Problematisation / Theory Articulation</strong>
+            <span>まだ無い側を補い、「この理論は何を説明するのか」を明確化する。</span>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <strong>Mismatch / Contrast</strong>
+            <span>不足点、競合説明、未確認前提、説明できない点を洗い出す。</span>
+          </div>
+          <div class="step">
+            <div class="num">5</div>
+            <strong>Scientific Explanation</strong>
+            <span>教材・実行結果・外部資料で根拠を入れる。</span>
+          </div>
+          <div class="step">
+            <div class="num">6</div>
+            <strong>Rise Above</strong>
+            <span>説明を統合し、より良い記述やルールにまとめ直す。</span>
+          </div>
+          <div class="step">
+            <div class="num">7</div>
+            <strong>Community Memory</strong>
+            <span>改善された説明を共有資産として残し、次の説明の土台にする。</span>
+          </div>
+        </div>
+
+        <p class="small" style="margin-top: 14px;">
+          問い先行なら <code>Seed → Problem → Working Theory</code>、アイデア先行なら
+          <code>Seed → Working Theory → Problematisation</code>、違和感先行なら
+          <code>Seed → Mismatch → Working Theory</code> の変種になる。
+        </p>
+
+        <div class="grid three" style="margin-top: 16px;">
+          <div class="card stack">
+            <h3>AIに向く役割</h3>
+            <ul>
+              <li>不足観点の候補出し</li>
+              <li>競合説明の並置</li>
+              <li>根拠要求の自動化</li>
+              <li>スレッド要約と未解決点抽出</li>
+            </ul>
+          </div>
+          <div class="card stack">
+            <h3>AIに向かない役割</h3>
+            <ul>
+              <li>即答で完成説明を配ること</li>
+              <li>単独で誤答判定を確定すること</li>
+              <li>学習者の代わりに問題設定を完了すること</li>
+              <li>共同体議論を飛ばして閉じること</li>
+            </ul>
+          </div>
+          <div class="card stack">
+            <h3>UIで必要そうなもの</h3>
+            <ul>
+              <li>説明モードの分離: 問い / 仮説 / 根拠 / 改訂</li>
+              <li>可視化モード: 実行トレースや図示</li>
+              <li>confidence 付きAIコメント</li>
+              <li>共同体全体の未解決マップ</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>5. 実務上の設計原則</h2>
+        <ol>
+          <li>説明を採点対象ではなく、改善対象のアイデアとして保持する。</li>
+          <li>AIは最初から答えを完成させず、不足・競合・根拠の問い返しを優先する。</li>
+          <li>self-explanation を文字だけに閉じず、図・トレース・実行の外化を併用する。</li>
+          <li>authoritative information を取り込む導線をUIに埋め込む。Muukkonen 論文の弱点はそこだった。</li>
+          <li>共同体責任を壊さないよう、個人診断だけでなく「クラス全体で未解決の問い」を見せる。</li>
+          <li>LLM の誤検出に備え、AI コメントは根拠・確信度・再確認導線つきで出す。</li>
+        </ol>
+      </section>
+
+      <section class="section">
+        <h2>6. 参考文献とアクセス先</h2>
+        <div class="refs">
+          <div class="ref-item stack">
+            <h3>Muukkonen, H., Hakkarainen, K., &amp; Lakkala, M. (1999)</h3>
+            <p><em>Collaborative Technology for Facilitating Progressive Inquiry: Future Learning Environment Tools.</em></p>
+            <p class="small">
+              CSCL 1999 proceedings. 参照:
+              <a href="https://www.gerrystahl.net/proceedings/cscl1999/A51/A51.HTM">conference HTML mirror</a>,
+              <a href="https://researchportal.helsinki.fi/en/publications/collaborative-technology-for-facilitating-progressive-inquiry-fut">University of Helsinki record</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Scardamalia, M., &amp; Bereiter, C. (2014)</h3>
+            <p><em>Knowledge Building and Knowledge Creation: Theory, Pedagogy, and Technology.</em></p>
+            <p class="small">
+              In <em>The Cambridge Handbook of the Learning Sciences</em>. 参照:
+              <a href="https://ikit.org/fulltext/2014-KBandKC-Theory-pedagogy-tech.pdf">IKIT full text PDF</a>,
+              <a href="https://doi.org/10.1017/CBO9781139519526.025">DOI</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Scardamalia, M. (2002)</h3>
+            <p><em>Collective Cognitive Responsibility for the Advancement of Knowledge.</em></p>
+            <p class="small">
+              In B. Smith (Ed.), <em>Liberal Education in a Knowledge Society</em>. 参照:
+              <a href="https://ikit.org/fulltext/2002CollectiveCog.pdf">IKIT full text PDF</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Fiorella, L. (2023)</h3>
+            <p><em>Making Sense of Generative Learning.</em> <em>Educational Psychology Review</em>, 35, 50.</p>
+            <p class="small">
+              参照:
+              <a href="https://link.springer.com/article/10.1007/s10648-023-09769-7">Springer open access article</a>,
+              <a href="https://doi.org/10.1007/s10648-023-09769-7">DOI</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Rittle-Johnson, B., &amp; Loehr, A. M. (2017)</h3>
+            <p><em>Eliciting Explanations: Constraints on When Self-Explanation Aids Learning.</em> <em>Psychonomic Bulletin &amp; Review</em>, 24(5), 1501-1510.</p>
+            <p class="small">
+              参照:
+              <a href="https://pubmed.ncbi.nlm.nih.gov/27368627/">PubMed abstract</a>,
+              <a href="https://doi.org/10.3758/s13423-016-1079-5">DOI</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Oli, P., Banjade, R., Olney, A. M., &amp; Rus, V. (2025)</h3>
+            <p><em>Can LLMs Identify Gaps and Misconceptions in Students' Code Explanations?</em></p>
+            <p class="small">
+              参照:
+              <a href="https://arxiv.org/abs/2501.10365">arXiv abstract</a>,
+              <a href="https://doi.org/10.48550/arXiv.2501.10365">arXiv DOI</a>,
+              <a href="https://ar5iv.org/html/2501.10365v1">ar5iv HTML</a>
+            </p>
+          </div>
+        </div>
+
+        <p class="footer">
+          注: Rittle-Johnson (2017) は公開抽象中心で読んでいる。Oli et al. (2025) については、実験設定から
+          「実運用前に誤検出抑制が必要」という点を推論している。その他は本文読みに基づく要約。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

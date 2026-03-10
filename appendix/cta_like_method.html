@@ -1,0 +1,218 @@
+<section>
+    <h1>Cognitive Task Analysis: Current Research 日本語まとめ</h1>
+    <p>
+        この資料は、Hayley Davison による
+        <strong>「Cognitive Task Analysis: Current Research」</strong>
+        というスライド資料で、CTA（Cognitive Task Analysis: 認知的タスク分析）の背景と必要性を説明したうえで、
+        特に <strong>Militello &amp; Hutton の ACTA（Applied Cognitive Task Analysis）</strong> を中心に、
+        その構成・使い方・結果・限界を紹介しています。加えて後半では、
+        安全クリティカルなソフトウェア設計におけるヒューマンエラー分析への応用例も扱っています。 :contentReference[oaicite:0]{index=0}
+    </p>
+
+    <h2>1. 資料全体の要旨</h2>
+    <p>
+        この資料の中心メッセージは、
+        <strong>現代の仕事では技術の発展によって認知的負荷がむしろ増しており、
+            そのため、表面的な手順だけでなく、判断・状況認識・意思決定のような認知的要素を分析する CTA が重要である</strong>
+        という点です。資料では、従来の CTA は時間とコストが大きいという問題を指摘し、
+        それに対する実務向けの簡略化手法として ACTA を紹介しています。 :contentReference[oaicite:1]{index=1}
+    </p>
+
+    <h2>2. CTA とは何か</h2>
+    <p>
+        資料ではまず、タスク分析を
+        <strong>「ある仕事目標を達成するために必要な身体的タスクと認知的計画を記述するもの」</strong>
+        と位置づけています。そのうえで、
+        タスク分析の実施法は一つではないが、
+        <strong>Hierarchical Task Analysis（階層的タスク分析）が柔軟性のためによく使われる</strong>
+        と説明しています。また、どの方法を選ぶかは、
+        分析目的、設計フェーズ、分析者やドメイン専門家の熟練度に依存するとされています。 :contentReference[oaicite:2]{index=2}
+    </p>
+
+    <p>
+        CTA が特に対象とするのは、
+        <strong>目標生成、意思決定、判断</strong>
+        の背後にある認知的要素です。つまり、
+        「何をするか」だけでなく、
+        「なぜそのように状況を見たのか」
+        「どの手がかりを重要と見なしたのか」
+        「初心者がどこで誤りやすいのか」
+        まで明らかにしようとするのが CTA です。 :contentReference[oaicite:3]{index=3}
+    </p>
+
+    <h2>3. なぜ CTA が必要なのか</h2>
+    <p>
+        資料では、
+        <strong>技術進歩は人間の精神的負荷を減らすどころか、増やしている</strong>
+        と述べられています。そのため、
+        熟練者が行っている高度な判断や状況把握を形式化しないと、
+        訓練設計、システム設計、支援ツール設計が不十分になりやすい、
+        という問題意識が示されています。 :contentReference[oaicite:4]{index=4}
+    </p>
+
+    <p>
+        一方で、従来型の CTA はかなり重厚で、
+        資料中では PARI 法の開発に
+        <strong>数年を要した</strong>
+        事例が挙げられています。こうした背景から、
+        人間工学の専門家だけでなく
+        <strong>システム設計者でも扱いやすい、より実践的な CTA 手法</strong>
+        が求められ、ACTA が提案されたと整理されています。 :contentReference[oaicite:5]{index=5}
+    </p>
+
+    <h2>4. ACTA（Applied Cognitive Task Analysis）の位置づけ</h2>
+    <p>
+        ACTA は、
+        <strong>認知的タスク遂行を引き出して表現するための、簡略化された CTA 手法</strong>
+        として紹介されています。さらに、
+        集めたデータを設計提言へ変換することも意図されています。
+        資料では、ACTA の主要構成として次の 4 要素が示されています。 :contentReference[oaicite:6]{index=6}
+    </p>
+
+    <ol>
+        <li>Task diagram interview</li>
+        <li>Knowledge audit</li>
+        <li>Simulation interview</li>
+        <li>Cognitive demands table</li>
+    </ol>
+
+    <h2>5. ACTA の各パート</h2>
+
+    <h3>5-1. Task Diagram Interview</h3>
+    <p>
+        この段階の目的は、
+        <strong>タスク全体を大づかみに把握し、特に認知的に難しい部分を見つけること</strong>
+        です。やり方としては、専門家にタスクを
+        <strong>3〜6 個程度のステップやサブタスクに分解</strong>
+        してもらい、どの部分で判断・評価・問題解決のような
+        「認知的スキル」が要るかを尋ね、流れとして図示します。 :contentReference[oaicite:7]{index=7}
+    </p>
+
+    <p>
+        資料中の例では、消防指揮のタスクが
+        初期評価 → 一次捜索救助 → 二次捜索救助 → 振り返り、
+        のように表現されています。ここで重要なのは、
+        Task Diagram が最終成果物というより、
+        <strong>どこを次に深掘りするべきかを決める地図</strong>
+        になっている点です。 :contentReference[oaicite:8]{index=8}
+    </p>
+
+    <h3>5-2. Knowledge Audit</h3>
+    <p>
+        Knowledge Audit の目的は、
+        <strong>その仕事に必要な熟練知を、具体例ベースの質問で棚卸しすること</strong>
+        です。資料では、
+        診断と予測、状況認識、知覚スキル、コツの使いどころ、即興対応、メタ認知、
+        異常検知、装置制約の補償など、
+        専門性を構成するカテゴリへプローブを当てると説明しています。 :contentReference[oaicite:9]{index=9}
+    </p>
+
+    <p>
+        例として、
+        「途中から状況に入っても、何が起きてどう進みそうかすぐ分かったことはあるか」
+        「この仕事で Big Picture が重要だった例はあるか」
+        「他の人が見落としたが自分には目に飛び込んできたことはあるか」
+        「少ない労力でうまく進めるコツはあるか」
+        「途中でやり方を変える必要に気づいた経験はあるか」
+        といった質問が示されています。これらは、
+        単なる手順確認ではなく、
+        <strong>熟練者が何を見て、どう解釈し、どう調整するか</strong>
+        を引き出すための質問です。 :contentReference[oaicite:10]{index=10}
+    </p>
+
+    <p>
+        また、Knowledge Audit Table では、
+        <strong>熟練の側面 / 手がかり・戦略 / なぜ難しいか</strong>
+        のように整理する例が示されています。たとえば資料では、
+        初心者は一つの対象に注意が偏る「トンネル視」に陥りやすく、
+        熟練者は危険源、被災者位置、進入退避経路、他の危険などを
+        Big Picture として同時に見ていることが例示されています。 :contentReference[oaicite:11]{index=11}
+    </p>
+
+    <h3>5-3. Simulation Interview</h3>
+    <p>
+        Simulation Interview の目的は、
+        <strong>特定の難しいシナリオの中で、専門家の認知過程を文脈つきで掘ること</strong>
+        です。手順としては、
+        訓練シナリオや過去の CTA をもとにした
+        「チャレンジングな場面」を用意し、
+        専門家にその場面で何が起きていると見たか、何をするか、
+        何を手がかりにしたか、初心者はどんな誤りをしやすいかを尋ねます。 :contentReference[oaicite:12]{index=12}
+    </p>
+
+    <p>
+        この段階では、
+        <strong>出来事、評価、行動、重要手がかり、潜在的エラー</strong>
+        を結びつけて記述していくのがポイントです。
+        つまり、単なる「正解手順」ではなく、
+        状況認識と判断の流れをシナリオ内で再構成することが重視されています。 :contentReference[oaicite:13]{index=13}
+    </p>
+
+    <h3>5-4. Cognitive Demands Table</h3>
+    <p>
+        資料の流れから見ると、Cognitive Demands Table は、
+        Task Diagram、Knowledge Audit、Simulation Interview で得た内容を統合し、
+        <strong>そのタスクで何が認知的に難しいかを表形式で整理する出力</strong>
+        です。これは、教育設計や支援システム設計へつなぐための中間成果物として機能しています。 :contentReference[oaicite:14]{index=14}
+    </p>
+
+    <h2>6. ACTA の評価結果と限界</h2>
+    <p>
+        資料では ACTA の妥当性・信頼性評価も扱われていますが、
+        著者ら自身が
+        <strong>CTA ツールの信頼性を測る確立した指標はない</strong>
+        と認めている点が強調されています。また、
+        ACTA のような簡略化手法は、
+        <strong>Critical Decision Method や Rasmussen の認知分析のような、より体系的な方法よりも情報の網羅性では劣る可能性がある</strong>
+        とまとめられています。 :contentReference[oaicite:15]{index=15}
+    </p>
+
+    <p>
+        それでも資料は、
+        ACTA には
+        <strong>設計や教育に役立つ重要情報を引き出す実用的価値がある</strong>
+        と評価しています。つまり、
+        完全性よりも実務適用性を重視した CTA として意義がある、
+        という位置づけです。 :contentReference[oaicite:16]{index=16}
+    </p>
+
+    <h2>7. 後半で扱われる話題</h2>
+    <p>
+        資料後半では、
+        <strong>安全クリティカルなソフトウェア設計におけるヒューマンエラー同定</strong>
+        の話題が続きます。そこでは、
+        従来の確率論的リスク評価は機械系には有効でも、
+        ソフトウェアでは物理制約が弱いため十分ではないこと、
+        そのため HTA などと組み合わせた分析や、
+        エラー観察、作業サンプルテストなどを通じた検討が紹介されています。 :contentReference[oaicite:17]{index=17}
+    </p>
+
+    <p>
+        ただし、この資料全体の中で特に比重が大きいのは、
+        やはり <strong>ACTA をどう構成し、どう使うか</strong> の部分です。
+        その意味で、この資料は厳密な理論書というより、
+        <strong>CTA の全体像と ACTA の実践的骨格をつかむためのサーベイ兼紹介スライド</strong>
+        と見るのが適切です。 :contentReference[oaicite:18]{index=18}
+    </p>
+
+    <h2>8. この資料から学べること</h2>
+    <p>
+        この資料から得られる実践的な学びは、次のように要約できます。第一に、
+        CTA は「作業手順の分解」ではなく、
+        <strong>熟練者の見立て・判断・注目点・失敗回避を記述する営み</strong>
+        であること。第二に、
+        ACTA はそのための軽量な入口として有用であり、
+        <strong>Task Diagram → Knowledge Audit → Simulation Interview → Cognitive Demands Table</strong>
+        という流れで段階的に深掘りできること。第三に、
+        軽量化の代償として網羅性や評価の難しさは残るため、
+        用途に応じて他手法との併用を考えるべきだ、ということです。 :contentReference[oaicite:19]{index=19}
+    </p>
+
+    <h2>9. 一言でまとめると</h2>
+    <p>
+        <strong>
+            この資料は、「熟練者の頭の中にある判断のしかたを、現場で使える軽量な方法で引き出すにはどうするか」
+            という問いに対して、ACTA を中心に整理した入門的レビューです。
+        </strong> :contentReference[oaicite:20]{index=20}
+    </p>
+</section>

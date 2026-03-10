@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progressive Inquiry Tree 設計書</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4efe7;
+        --paper: #fffdf8;
+        --ink: #1e1a16;
+        --muted: #5f564c;
+        --line: #d8cab8;
+        --accent: #1f5c52;
+        --accent-soft: #d7ece7;
+        --accent-strong: #123a34;
+        --warn: #8a4b2a;
+        --warn-soft: #f7e5da;
+        --good: #2e5e3a;
+        --good-soft: #e0f0e3;
+        --shadow: 0 16px 42px rgba(45, 33, 17, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at right top, rgba(31, 92, 82, 0.1), transparent 28%),
+          radial-gradient(circle at left 8% top 20%, rgba(138, 75, 42, 0.08), transparent 24%),
+          linear-gradient(180deg, #eee4d8 0, var(--bg) 280px);
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        line-height: 1.74;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      a:hover {
+        color: var(--accent-strong);
+      }
+
+      .page {
+        width: min(1160px, calc(100% - 32px));
+        margin: 24px auto 52px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 30px 32px;
+      }
+
+      .section {
+        padding: 24px 26px;
+        margin-top: 18px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        margin: 0;
+        line-height: 1.3;
+      }
+
+      h1 {
+        margin-top: 12px;
+        font-size: clamp(30px, 4vw, 44px);
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-bottom: 12px;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      h4 {
+        font-size: 15px;
+        margin-bottom: 8px;
+      }
+
+      p,
+      ul,
+      ol,
+      table,
+      pre {
+        margin: 0;
+      }
+
+      p + p,
+      p + ul,
+      p + ol,
+      ul + p,
+      ol + p,
+      .stack > * + * {
+        margin-top: 10px;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2em;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        margin-top: 14px;
+        color: var(--muted);
+        max-width: 78ch;
+      }
+
+      .meta {
+        margin-top: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .meta span {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 5px 10px;
+        background: #fff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card,
+      .callout {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .callout {
+        padding: 14px 16px;
+      }
+
+      .callout.primary {
+        background: linear-gradient(135deg, #f6fbf9, #fff);
+      }
+
+      .callout.warn {
+        background: linear-gradient(135deg, #fff7f3, #fff);
+        border-color: #e4cbbd;
+      }
+
+      .callout.good {
+        background: linear-gradient(135deg, #f6fbf6, #fff);
+        border-color: #cde2d1;
+      }
+
+      .decision {
+        color: var(--good);
+        font-weight: 700;
+      }
+
+      .rejected {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      .matrix {
+        overflow-x: auto;
+      }
+
+      .table {
+        width: 100%;
+        min-width: 920px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      .table th,
+      .table td {
+        padding: 12px;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th {
+        background: rgba(31, 92, 82, 0.05);
+        color: var(--muted);
+      }
+
+      pre {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        background: #fbfaf7;
+        overflow-x: auto;
+        font-size: 13px;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+        background: #f2efe9;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.92em;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .step {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px;
+        background: #fff;
+      }
+
+      .num {
+        display: inline-flex;
+        width: 30px;
+        height: 30px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .small {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 860px) {
+        .page {
+          width: min(100%, calc(100% - 20px));
+          margin: 10px auto 32px;
+        }
+
+        .hero,
+        .section {
+          padding: 22px 18px;
+          border-radius: 18px;
+        }
+
+        h2 {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">Design Spec</span>
+        <h1>Progressive Inquiry Tree 設計書</h1>
+        <p class="lead">
+          目的は、<code>Problem</code> を入口と根に固定するのではなく、
+          <strong>Question Seed / Idea Seed / Anomaly Seed</strong> の3種類から始まる探究を受け止めること。
+          そのうえで、文献に沿って <strong>theory-local な gap</strong> と
+          <strong>theory-between な contrast</strong> を分離した設計へ落とす。
+          既存の tree editor が単一親の木構造であることを前提に、無理なく導入できる形を採る。
+        </p>
+        <div class="meta">
+          <span>対象プロダクト: cta_story</span>
+          <span>作成日: 2026-03-10</span>
+          <span>前提: 現行 tree editor は単一親ツリー</span>
+          <span>関連サーベイ: <a href="../appendix/problem_working_theory_gap_contrast_survey.html">focused survey</a></span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>1. 設計判断の要約</h2>
+        <div class="grid two">
+          <div class="callout good stack">
+            <h3 class="decision">採用</h3>
+            <p>
+              入口の根は <code>problem</code> ではなく <code>seed</code> にする。
+              <code>seedType = question | idea | anomaly</code> を持たせる。
+            </p>
+            <p>
+              <code>gap</code> は <code>working_theory</code> の子ノードとして持つ。
+              名前は <code>mismatch</code> に寄せる。
+            </p>
+            <p>
+              <code>contrast</code> はノード種別にしない。
+              同一 <code>seed</code> 配下の複数 theory を比較する
+              <strong>ビュー / 操作 / 派生オブジェクト</strong>として扱う。
+            </p>
+          </div>
+          <div class="callout warn stack">
+            <h3 class="rejected">不採用</h3>
+            <p>
+              <code>gap_contrast</code> のような混成ノード。
+              何が theory の欠陥で、何が理論間比較なのかを失う。
+            </p>
+            <p>
+              明示的な <code>contrast</code> エッジを木構造のコアに入れる案も、現行実装と相性が悪い。
+              MVP では比較ビューの方が安全。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>2. 背景: なぜ今の問題が起きるのか</h2>
+        <div class="grid three">
+          <div class="card stack">
+            <h3>概念の混線</h3>
+            <p><code>Gap/Contrast</code> には、理論の欠陥と理論間比較の2機能が混在している。</p>
+          </div>
+          <div class="card stack">
+            <h3>入口の誤固定</h3>
+            <p>問いから始まる場合だけを標準にすると、思いつきや違和感から始まる探究を構造化できない。</p>
+          </div>
+          <div class="card stack">
+            <h3>UIの曖昧さ</h3>
+            <p>ユーザーは「まず問題を書くのか」「まず考えを書くのか」で迷う。さらに Gap と Contrast も分かれない。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>3. 推奨する情報モデル</h2>
+        <div class="matrix">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ノード種別</th>
+                <th>役割</th>
+                <th>典型的な問い</th>
+                <th>許可する子</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>seed</code></td>
+                <td>探究の発火点。問い、アイデア、違和感を束ねる親</td>
+                <td>何がこの探究を始めたか</td>
+                <td><code>problem</code>, <code>working_theory</code>, <code>evidence</code>, <code>synthesis</code></td>
+              </tr>
+              <tr>
+                <td><code>problem</code></td>
+                <td>説明したい問い・不明点・タスクの明確化</td>
+                <td>この seed で何を説明したいのか</td>
+                <td>なし</td>
+              </tr>
+              <tr>
+                <td><code>working_theory</code></td>
+                <td>現時点の説明・仮説・解釈</td>
+                <td>いまどう説明するか</td>
+                <td><code>mismatch</code>, <code>evidence</code>, <code>working_theory</code>, <code>problem</code></td>
+              </tr>
+              <tr>
+                <td><code>mismatch</code></td>
+                <td>この理論では説明できない点</td>
+                <td>何が合わないか / 何が抜けているか</td>
+                <td><code>evidence</code>, <code>working_theory</code></td>
+              </tr>
+              <tr>
+                <td><code>evidence</code></td>
+                <td>根拠、実行結果、資料、教師説明</td>
+                <td>何がこの理論を支えるか / 退けるか</td>
+                <td>なし</td>
+              </tr>
+              <tr>
+                <td><code>synthesis</code></td>
+                <td>rise-above した改善説明</td>
+                <td>今の共同体説明は何か</td>
+                <td>なし</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout primary stack" style="margin-top: 16px;">
+          <h3>ポイント</h3>
+          <p>
+            <code>contrast</code> はここにいない。contrast は
+            <strong>同一 seed 配下の複数 <code>working_theory</code> を比較する UI 操作</strong>で表現する。
+            つまり node kind ではなく relation/view として持つ。
+          </p>
+          <p>
+            <code>problem</code> は重要だが、構造上の親ではない。Idea Seed では
+            <code>working_theory</code> のあとから <code>problem</code> を明確化する
+            <strong>problematisation</strong> が起きてよい。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>4. 木構造としての最小表現</h2>
+        <pre><code>seed (idea): 末尾要素が飛ぶのは境界条件のせいかも
+  problem: なぜこのループは最後の要素を処理しないのか
+  working_theory: i &lt; arr.length - 1 だから最後が飛ぶ
+    mismatch: empty array のときの挙動をまだ説明していない
+      evidence: 実行トレースで i の値と条件式を確認
+      working_theory: 境界条件だけでなく初期化条件も影響している
+    evidence: 条件式の真偽を各反復で記録
+  working_theory: break 条件が先に発火している
+    evidence: 途中の return / break を確認
+  synthesis: 原因は境界条件の設定と break 条件の組み合わせ</code></pre>
+        <p class="small" style="margin-top: 12px;">
+          同じ <code>seed</code> の下に複数の <code>working_theory</code> を置けるので、alternative theory は専用 kind なしでも表現できる。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>5. Contrast をどう扱うか</h2>
+        <div class="grid two">
+          <div class="card stack">
+            <h3>設計原理</h3>
+            <ul>
+              <li>contrast は最低2つの theory があって初めて成立する。</li>
+              <li>比較対象は sibling theory、改訂前後の theory、theory と canonical explanation のいずれか。</li>
+              <li>木の中に無理に埋めるより、選択ビューで並置した方が認知負荷が低い。</li>
+            </ul>
+          </div>
+          <div class="card stack">
+            <h3>MVP の実装形</h3>
+            <ul>
+              <li>Seed を選ぶと、その配下の theory を横並びで比較表示する。</li>
+              <li>Problem がある場合は compare panel の見出しに出すが、比較の親は seed のままにする。</li>
+              <li>比較ビューでは「一致点」「相違点」「判別に必要な evidence」を出す。</li>
+              <li>保存は必須にしない。最初は派生表示でよい。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn stack" style="margin-top: 16px;">
+          <h3>避けるべきこと</h3>
+          <p>
+            <code>contrast</code> を単一ノードにすると、
+            「A理論とB理論の違い」なのか「A理論の欠点」なのかが崩れる。
+            これは作成者にも閲覧者にも不親切で、AIコメントも不安定になる。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>6. ユーザーフロー</h2>
+        <div class="grid three">
+          <div class="card stack">
+            <h3>Question Seed</h3>
+            <p><code>Seed → Problem → Working Theory → Mismatch → Compare → Evidence → Synthesis</code></p>
+          </div>
+          <div class="card stack">
+            <h3>Idea Seed</h3>
+            <p><code>Seed → Working Theory → Problematisation → Mismatch → Compare → Evidence → Synthesis</code></p>
+          </div>
+          <div class="card stack">
+            <h3>Anomaly Seed</h3>
+            <p><code>Seed → Oddity / Mismatch → Working Theory → Problematisation → Compare → Evidence → Synthesis</code></p>
+          </div>
+        </div>
+        <p class="small" style="margin-top: 12px;">
+          ここでの problematisation は、新しい node kind でなくてもよい。まずは <code>problem</code> ノードを後から追加・明確化する操作として扱える。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>7. AI 支援の置き場所</h2>
+        <div class="grid three">
+          <div class="card stack">
+            <h3>Seed / Problematisation 向け</h3>
+            <ul>
+              <li>その seed が問い・アイデア・違和感のどれかを整理する</li>
+              <li>「これは何を説明しようとしているのか」を言語化させる</li>
+              <li>比較すべき対象や条件を提案する</li>
+            </ul>
+          </div>
+          <div class="card stack">
+            <h3>Working Theory / Mismatch 向け</h3>
+            <ul>
+              <li>抜けている状態変化を指摘する</li>
+              <li>説明していないコード行を示す</li>
+              <li>矛盾しうるケースを挙げる</li>
+            </ul>
+          </div>
+          <div class="card stack">
+            <h3>Contrast / Compare 向け</h3>
+            <ul>
+              <li>一致点と相違点を要約する</li>
+              <li>判別に必要な evidence を提案する</li>
+              <li>確信度つきで比較結果を返す</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout primary stack" style="margin-top: 16px;">
+          <h3>ガードレール</h3>
+          <p>
+            AI は「これが正解」と閉じる役ではなく、
+            <strong>不足点・比較観点・確認すべき evidence</strong> を出す役に寄せる。
+            near-correct explanation への誤検出があるため、断定より候補提示が基本。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>8. 現行コードベースへの落とし込み</h2>
+        <div class="matrix">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>対象</th>
+                <th>現状</th>
+                <th>設計変更</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>src/types/tree.ts</code></td>
+                <td>固定の <code>NodeKind</code> union</td>
+                <td><code>schemaId</code> を tree に追加し、必要なら <code>TreeNode</code> に <code>seedType?</code> を持たせる。</td>
+              </tr>
+              <tr>
+                <td><code>src/lib/node-kind.ts</code></td>
+                <td>CTA 固定メタデータと child rule</td>
+                <td>新規に <code>src/lib/tree-schema.ts</code> を作り、CTA と Progressive Inquiry を並列定義する。</td>
+              </tr>
+              <tr>
+                <td><code>src/lib/tree-ops.ts</code></td>
+                <td>CTA 専用バリデーション</td>
+                <td>tree の <code>schemaId</code> に応じて許可 child kind を切り替える。</td>
+              </tr>
+              <tr>
+                <td><code>src/components/add-node-form.tsx</code></td>
+                <td>固定 options を選択</td>
+                <td>schema 由来の options を描画する。</td>
+              </tr>
+              <tr>
+                <td><code>src/components/task-diagram-panel.tsx</code></td>
+                <td>root Task Step の管理</td>
+                <td>root Seed の管理へ一般化し、<code>question / idea / anomaly</code> の起点を選べるようにする。</td>
+              </tr>
+              <tr>
+                <td><code>src/components/node-detail.tsx</code></td>
+                <td>直下の子ノード列挙</td>
+                <td>Seed 選択時に compare panel を追加する。Problem は contextual note として見せる。</td>
+              </tr>
+              <tr>
+                <td><code>src/pages/admin-page.tsx</code></td>
+                <td>CTA 管理画面</td>
+                <td>schema ごとの説明文と root 作成UIを切り替え、inquiry schema では Seed 起点で編集する。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout good stack" style="margin-top: 16px;">
+          <h3>MVP で守ること</h3>
+          <p>
+            比較を保存可能なグラフ構造にしなくてもよい。
+            まずは <strong>木構造のまま theory を複数持てるようにし、compare view を派生表示</strong>にする。
+            これならデータモデルの破壊が小さい。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>9. 推奨する実装フェーズ</h2>
+        <ol>
+          <li>schema registry 化。CTA schema と inquiry schema を並立させる。</li>
+          <li>inquiry schema で <code>seed / problem / working_theory / mismatch / evidence / synthesis</code> を追加する。</li>
+          <li>root editor を Seed 起点へ切り替え、<code>seedType</code> を選べるようにする。</li>
+          <li>Seed 選択時の compare view を入れる。最初は非保存でよい。</li>
+          <li>AI で problematisation 支援、mismatch 候補、compare summary を生成する。confidence と根拠必須。</li>
+          <li>必要なら compare 結果を保存オブジェクト化する。</li>
+        </ol>
+      </section>
+
+      <section class="section">
+        <h2>10. 残る論点</h2>
+        <div class="grid two">
+          <div class="card stack">
+            <h3>未解決 1</h3>
+            <p>
+              <code>working_theory</code> の改訂を、兄弟 theory として増やすか、子 theory として版管理するか。
+              MVP は sibling でもよいが、履歴を見せたいなら child 版がよい。
+            </p>
+          </div>
+          <div class="card stack">
+            <h3>未解決 2</h3>
+            <p>
+              1つの <code>seed</code> から複数の <code>problem</code> が生えてよいか。
+              実際にはありうるので、MVP は許可しつつ compare の単位を seed に保つのが現実的。
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
