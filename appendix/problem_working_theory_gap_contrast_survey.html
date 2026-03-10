@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Problem / Working Theory / Gap / Contrast ミニサーベイ</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f3efe6;
+        --paper: #fffdf8;
+        --ink: #1e1a16;
+        --muted: #62584e;
+        --line: #d8cbb8;
+        --accent: #2f5b77;
+        --accent-soft: #dcebf4;
+        --accent-strong: #17384a;
+        --warm: #9a5632;
+        --warm-soft: #f6e4da;
+        --gold: #7b6620;
+        --gold-soft: #efe6c7;
+        --shadow: 0 16px 38px rgba(45, 33, 17, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at right top, rgba(47, 91, 119, 0.1), transparent 25%),
+          radial-gradient(circle at left 10% top 24%, rgba(154, 86, 50, 0.08), transparent 24%),
+          linear-gradient(180deg, #ede4d7 0, var(--bg) 280px);
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        line-height: 1.74;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      a:hover {
+        color: var(--accent-strong);
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 32px));
+        margin: 24px auto 52px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 30px 32px;
+      }
+
+      .section {
+        padding: 24px 26px;
+        margin-top: 18px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        margin: 0;
+        line-height: 1.3;
+      }
+
+      h1 {
+        margin-top: 12px;
+        font-size: clamp(30px, 4vw, 44px);
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-bottom: 12px;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      h4 {
+        font-size: 15px;
+        margin-bottom: 8px;
+      }
+
+      p,
+      ul,
+      ol,
+      table {
+        margin: 0;
+      }
+
+      p + p,
+      p + ul,
+      p + ol,
+      ul + p,
+      ol + p,
+      .stack > * + * {
+        margin-top: 10px;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2em;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        margin-top: 14px;
+        color: var(--muted);
+        max-width: 74ch;
+      }
+
+      .meta {
+        margin-top: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .meta span,
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 5px 10px;
+        background: #fff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card,
+      .callout {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .callout {
+        padding: 14px 16px;
+      }
+
+      .callout.primary {
+        background: linear-gradient(135deg, #f6fbfe, #fff);
+      }
+
+      .callout.warn {
+        background: linear-gradient(135deg, #fff7f3, #fff);
+        border-color: #e6cab9;
+      }
+
+      .callout.note {
+        background: linear-gradient(135deg, #fbfaf3, #fff);
+        border-color: #dfd4af;
+      }
+
+      .matrix {
+        overflow-x: auto;
+      }
+
+      .table {
+        width: 100%;
+        min-width: 860px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      .table th,
+      .table td {
+        padding: 12px;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th {
+        background: rgba(47, 91, 119, 0.05);
+        color: var(--muted);
+      }
+
+      .stage-grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        margin-top: 14px;
+      }
+
+      .stage {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px;
+        background: #fff;
+      }
+
+      .stage-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .refs {
+        display: grid;
+        gap: 12px;
+      }
+
+      .ref-item {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px 15px;
+        background: #fff;
+      }
+
+      .small {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+        background: #f2efe9;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.92em;
+      }
+
+      @media (max-width: 860px) {
+        .page {
+          width: min(100%, calc(100% - 20px));
+          margin: 10px auto 32px;
+        }
+
+        .hero,
+        .section {
+          padding: 22px 18px;
+          border-radius: 18px;
+        }
+
+        h2 {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">Focused Survey</span>
+        <h1>Problem / Working Theory / Gap / Contrast をどう切るべきか</h1>
+        <p class="lead">
+          結論だけ言うと、<code>Gap/Contrast</code> は文献上ひとつの操作ではない。
+          <strong>gap</strong> は「この理論では説明できないこと」の局所診断で、
+          <strong>contrast</strong> は「複数の理論や解法を並べたときの差異」の比較活動である。
+          したがって、両者を1ノードで持つと理論上もUI上も曖昧になりやすい。
+        </p>
+        <div class="meta">
+          <span>対象: Problem → Working Theory → Gap/Contrast</span>
+          <span>作成日: 2026-03-10</span>
+          <span>ステータス: 提案サーベイ</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>1. まず整理</h2>
+        <div class="grid two">
+          <div class="callout primary stack">
+            <h3>`gap` は何か</h3>
+            <p>
+              現在の working theory が説明できない点、証拠と合わない点、欠けている前提。
+              Knowledge Building では典型的に
+              <code>This theory cannot explain</code> や
+              <code>need to understand</code> の形で扱われる。
+            </p>
+          </div>
+          <div class="callout warn stack">
+            <h3>`contrast` は何か</h3>
+            <p>
+              2つ以上の理論、解法、表現、事例を比べて差異を見つけること。
+              comparison learning や productive failure の文脈では、
+              差異が構造理解や canonical explanation への準備になる。
+            </p>
+          </div>
+        </div>
+        <p class="small" style="margin-top: 12px;">
+          要するに、gap は理論の内側にある欠陥で、contrast は理論間にある関係である。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>2. この部分に直接効く文献</h2>
+        <div class="matrix">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>文献</th>
+                <th>この論文が扱うもの</th>
+                <th>読むべきポイント</th>
+                <th>設計への含意</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Muukkonen et al. (1999)</td>
+                <td><code>problem / working theory / scientific explanation</code> の足場</td>
+                <td>まず問いと仮説を立て、その後に科学的説明へ進む。</td>
+                <td>Problem と Working Theory を分ける基礎になる。</td>
+              </tr>
+              <tr>
+                <td>Zhang et al. (2007)</td>
+                <td><code>My theory</code> → <code>This theory cannot explain</code> → <code>A better theory</code></td>
+                <td>gap は theory-local に記述され、改良理論へ接続される。</td>
+                <td><strong>Gap は独立ノードにできる</strong>が、Contrast とは別だと分かる。</td>
+              </tr>
+              <tr>
+                <td>Scardamalia &amp; Bereiter (2006)</td>
+                <td>idea improvement / rise above / authoritative information</td>
+                <td>理論の比較や改善は、共同体知識を前進させるための活動として置かれる。</td>
+                <td>Gap の先には evidence と synthesis が必要。</td>
+              </tr>
+              <tr>
+                <td>Schwartz &amp; Martin (2004)</td>
+                <td>Inventing to Prepare for Future Learning</td>
+                <td>不完全な自作解法を複数出し、比較することで後続説明の受け皿ができる。</td>
+                <td><strong>Contrast は複数案の比較活動</strong>として設計すべき。</td>
+              </tr>
+              <tr>
+                <td>Star &amp; Rittle-Johnson (2009)</td>
+                <td>solution comparison</td>
+                <td>複数手法を比べると概念理解と柔軟性が上がる。</td>
+                <td>Contrast は1つのノートより、比較ビューとして実装した方がよい。</td>
+              </tr>
+              <tr>
+                <td>Kapur &amp; Bielaczyc (2012)</td>
+                <td>Productive Failure</td>
+                <td>失敗解法の生成と比較が、後の統合説明に資する。</td>
+                <td>Gap と Contrast の後に consolidation が必要。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>3. 文献群をつなぐと何が見えるか</h2>
+        <div class="stage-grid">
+          <div class="stage stack">
+            <div class="stage-num">1</div>
+            <h3>Problem</h3>
+            <p>何が不明か、どこに説明要求があるかを立てる。</p>
+          </div>
+          <div class="stage stack">
+            <div class="stage-num">2</div>
+            <h3>Working Theory</h3>
+            <p>いまの仮説や説明を書く。正確さより前進可能性を重視する。</p>
+          </div>
+          <div class="stage stack">
+            <div class="stage-num">3</div>
+            <h3>Gap / Mismatch</h3>
+            <p>この理論では何が説明できないか、何が欠けているかを見る。</p>
+          </div>
+          <div class="stage stack">
+            <div class="stage-num">4</div>
+            <h3>Contrast</h3>
+            <p>他の theory や解法と比べ、どこが違うか、何が分岐点かを見る。</p>
+          </div>
+          <div class="stage stack">
+            <div class="stage-num">5</div>
+            <h3>Evidence</h3>
+            <p>資料、実行結果、教師説明、テスト、観察で理論をふるいにかける。</p>
+          </div>
+          <div class="stage stack">
+            <div class="stage-num">6</div>
+            <h3>Better Theory</h3>
+            <p>改善された説明や rise-above を作る。</p>
+          </div>
+        </div>
+        <div class="callout note stack" style="margin-top: 16px;">
+          <h3>重要な読み替え</h3>
+          <p>
+            文献上、<code>gap</code> は theory refinement の装置で、
+            <code>contrast</code> は comparison-based learning の装置である。
+            したがって、
+            <strong>Gap/Contrast を同一ノードに押し込むより、Gap をノード、Contrast をビューまたは操作として扱う方が自然</strong>だ。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>4. 設計に直結する判断</h2>
+        <div class="grid three">
+          <div class="card stack">
+            <h3>判断 1</h3>
+            <p><strong>Problem</strong> と <strong>Working Theory</strong> は分ける。</p>
+            <p class="small">Muukkonen 系の最小骨格。</p>
+          </div>
+          <div class="card stack">
+            <h3>判断 2</h3>
+            <p><strong>Gap</strong> は theory の子として保持する。</p>
+            <p class="small">Zhang et al. の <code>This theory cannot explain</code> に対応。</p>
+          </div>
+          <div class="card stack">
+            <h3>判断 3</h3>
+            <p><strong>Contrast</strong> は複数 theory の比較ビューとして扱う。</p>
+            <p class="small">Schwartz / Star / Kapur 系に整合的。</p>
+          </div>
+        </div>
+
+        <div class="callout primary stack" style="margin-top: 16px;">
+          <h3>最小構成の提案</h3>
+          <p>
+            最小でも <code>problem</code>、<code>working_theory</code>、<code>mismatch</code>、
+            <code>evidence</code>、<code>synthesis</code> は持った方がよい。
+            そして <code>contrast</code> はノード種別でなく、同一 problem 配下の theory を並べて比較する UI に落とす方がきれい。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>5. どれから読むべきか</h2>
+        <ol>
+          <li>Muukkonen et al. (1999): `problem / working theory / scientific explanation` の原型を見る。</li>
+          <li>Zhang et al. (2007): `my theory -> this theory cannot explain -> a better theory` の直接形を見る。</li>
+          <li>Schwartz &amp; Martin (2004): contrast がなぜ learning preparation になるかを見る。</li>
+          <li>Star &amp; Rittle-Johnson (2009): solution comparison の実証を押さえる。</li>
+          <li>Kapur &amp; Bielaczyc (2012): failure と comparison を統合した設計原理を見る。</li>
+        </ol>
+      </section>
+
+      <section class="section">
+        <h2>6. 参考文献とリンク</h2>
+        <div class="refs">
+          <div class="ref-item stack">
+            <h3>Muukkonen, H., Hakkarainen, K., &amp; Lakkala, M. (1999)</h3>
+            <p><em>Collaborative Technology for Facilitating Progressive Inquiry: Future Learning Environment Tools.</em></p>
+            <p class="small">
+              参照:
+              <a href="https://www.gerrystahl.net/proceedings/cscl1999/A51/A51.HTM">CSCL 1999 mirror</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Zhang, J., Scardamalia, M., Lamon, M., Reeve, R., &amp; Messina, R. (2007)</h3>
+            <p><em>Socio-cognitive dynamics of knowledge building in the work of 9- and 10-year-olds.</em> <em>Journal of the Learning Sciences</em>, 16(2).</p>
+            <p class="small">
+              参照:
+              <a href="https://openresearch.surrey.ac.uk/esploro/outputs/journalArticle/Socio-cognitive-dynamics-of-knowledge-building-in-the-work-of-9-and-10-year-olds/99514486002346">repository record</a>,
+              <a href="https://openresearch.surrey.ac.uk/esploro/fulltext/article/Socio-cognitive-dynamics-of-knowledge-building-in-the-work-of-9-and-10-year-olds/99514486002346">open text</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Scardamalia, M., &amp; Bereiter, C. (2006)</h3>
+            <p><em>Knowledge Building: Theory, Pedagogy, and Technology.</em></p>
+            <p class="small">
+              参照:
+              <a href="https://www.informalscience.org/sites/default/files/Knowledge%20building.pdf">full text PDF</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Schwartz, D. L., &amp; Martin, T. (2004)</h3>
+            <p><em>Inventing to Prepare for Future Learning: The Hidden Efficiency of Encouraging Original Student Production in Statistics Instruction.</em> <em>Cognition and Instruction</em>, 22(2).</p>
+            <p class="small">
+              参照:
+              <a href="https://doi.org/10.1207/s1532690xci2202_1">DOI</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Star, J. R., &amp; Rittle-Johnson, B. (2009)</h3>
+            <p><em>It Pays to Compare: An Experimental Study on Computational Estimation.</em> <em>Cognitive Science</em>, 33(4), 603-628.</p>
+            <p class="small">
+              参照:
+              <a href="https://pubmed.ncbi.nlm.nih.gov/19635005/">PubMed</a>
+            </p>
+          </div>
+
+          <div class="ref-item stack">
+            <h3>Kapur, M., &amp; Bielaczyc, K. (2012)</h3>
+            <p><em>Designing for Productive Failure.</em> <em>The Journal of the Learning Sciences</em>, 21(1), 45-83.</p>
+            <p class="small">
+              参照:
+              <a href="https://doi.org/10.1080/10508406.2011.591717">DOI</a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
