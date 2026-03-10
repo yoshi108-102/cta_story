@@ -4,7 +4,8 @@
 
 ## 実装済みスコープ
 
-- 公開ビュー: `/` で `published` を表示
+- 公開ビュー: `/` で `published` の forest overview を表示
+- root 詳細: `/tree/:treeId/root/:rootId` で 1 root の subtree を拡大表示
 - 管理画面: `/admin` で `draft` 編集
 - Task Diagram: 複数の root `task_step` を作成し、開始ルートを選択可能
 - 編集操作: ノード追加 / 未接続ノードの接続（エッジ追加）
@@ -45,7 +46,8 @@ npm run dev
 
 起動後:
 
-- 公開: `http://localhost:5173/`
+- 公開 overview: `http://localhost:5173/`
+- root 詳細例: `http://localhost:5173/tree/inquiry-001/root/n-root`
 - 管理: `http://localhost:5173/admin`
 
 Firebase 値が空の場合は自動で mock mode になり、`localStorage` 保存で動作します。

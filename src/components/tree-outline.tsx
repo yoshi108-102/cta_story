@@ -5,18 +5,22 @@ import { TreeDraft, TreeNode } from "../types/tree";
 
 interface TreeOutlineProps {
   tree: TreeDraft;
+  rootNodeId?: string;
   selectedNodeId: string;
   expandedNodeIds: Set<string>;
   onSelect: (nodeId: string) => void;
   onToggle: (nodeId: string) => void;
+  bare?: boolean;
 }
 
 export const TreeOutline = ({
   tree,
+  rootNodeId,
   selectedNodeId,
   expandedNodeIds,
   onSelect,
   onToggle,
+  bare = false,
 }: TreeOutlineProps) => {
   const schema = getTreeSchema(tree.schemaId);
   const childrenMap = useMemo(() => {
@@ -102,11 +106,16 @@ export const TreeOutline = ({
   };
 
   const root =
+    tree.nodes.find((node) => node.id === rootNodeId) ??
     tree.nodes.find((node) => node.id === tree.rootNodeId) ??
     tree.nodes.find((node) => node.parentId === null && node.kind === schema.rootKind);
 
   if (!root) {
     return <p className="error">root nodeが見つかりません。</p>;
+  }
+
+  if (bare) {
+    return <ul className="outline-list">{renderNode(root, 0)}</ul>;
   }
 
   return (

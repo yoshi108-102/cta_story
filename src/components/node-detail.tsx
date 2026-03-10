@@ -6,9 +6,11 @@ import { TreeDraft } from "../types/tree";
 interface NodeDetailProps {
   tree: TreeDraft;
   selectedNodeId: string;
+  title?: string;
+  onSelectNode?: (nodeId: string) => void;
 }
 
-export const NodeDetail = ({ tree, selectedNodeId }: NodeDetailProps) => {
+export const NodeDetail = ({ tree, selectedNodeId, title, onSelectNode }: NodeDetailProps) => {
   const node = getNode(tree, selectedNodeId);
 
   if (!node) {
@@ -26,7 +28,7 @@ export const NodeDetail = ({ tree, selectedNodeId }: NodeDetailProps) => {
 
   return (
     <div className="card">
-      <h3>{schema.label} ノード詳細</h3>
+      <h3>{title ?? `${schema.label} ノード詳細`}</h3>
       <div className="crumbs">
         {ancestors.map((ancestor) => (
           <span key={ancestor.id} className="crumb">
@@ -46,11 +48,20 @@ export const NodeDetail = ({ tree, selectedNodeId }: NodeDetailProps) => {
         {children.length === 0 ? (
           <p className="muted">子ノードはありません。</p>
         ) : (
-          <ul>
+          <ul className={onSelectNode ? "transition-list" : undefined}>
             {children.map((child) => (
               <li key={child.id}>
-                <span className="kind">{getTreeNodeKindLabel(child)}</span>
-                {child.label}
+                {onSelectNode ? (
+                  <button type="button" className="transition-button" onClick={() => onSelectNode(child.id)}>
+                    <span className="kind">{getTreeNodeKindLabel(child)}</span>
+                    <span>{child.label}</span>
+                  </button>
+                ) : (
+                  <>
+                    <span className="kind">{getTreeNodeKindLabel(child)}</span>
+                    {child.label}
+                  </>
+                )}
               </li>
             ))}
           </ul>
