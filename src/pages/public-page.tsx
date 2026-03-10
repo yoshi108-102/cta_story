@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { TreeOutline } from "../components/tree-outline";
 import { backendMode, getBackendWarning } from "../lib/firebase";
-import { getNodeKindDescription, getNodeKindLabel } from "../lib/node-kind";
+import { getNodeKindDescription, getTreeNodeKindLabel } from "../lib/node-kind";
+import { getTreeSchema } from "../lib/tree-schema";
 import { getAncestors, getChildren, getNode } from "../lib/tree-ops";
 import { getOrCreateDraft, getTreeVersion, publishDraft } from "../lib/tree-store";
 import { TreeDraft } from "../types/tree";
 
 export const PublicPage = () => {
-  const [treeId, setTreeId] = useState("marubou-001");
+  const [treeId, setTreeId] = useState("inquiry-001");
   const [tree, setTree] = useState<TreeDraft | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string>("");
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(new Set());
@@ -81,13 +82,14 @@ export const PublicPage = () => {
   const currentNode = tree ? getNode(tree, selectedNodeId) : undefined;
   const currentAncestors = currentNode && tree ? getAncestors(tree, currentNode.id) : [];
   const nextNodes = currentNode && tree ? getChildren(tree, currentNode.id) : [];
+  const schema = tree ? getTreeSchema(tree.schemaId) : null;
 
   return (
     <div className="page">
       <header className="page-header">
         <div>
           <h1>公開ビューア</h1>
-          <p className="muted">`/` は CTA の published を表示します。編集は `/admin` から行います。</p>
+          <p className="muted">`/` は現在の tree の published を表示します。編集は `/admin` から行います。</p>
           {getBackendWarning() ? <p className="badge">{getBackendWarning()}</p> : null}
         </div>
         <nav>
@@ -118,7 +120,7 @@ export const PublicPage = () => {
             onToggle={toggleExpand}
           />
           <section className="card">
-            <h3>CTAガイド</h3>
+            <h3>{schema?.label ?? "Tree"} ガイド</h3>
             <p className="muted">現在ノードを基準に、関連する下位ノードを選んで確認してください。</p>
             {currentNode ? (
               <>
@@ -131,7 +133,7 @@ export const PublicPage = () => {
                   <span className="crumb active">{currentNode.label}</span>
                 </div>
                 <div className="focus-node">
-                  <p className="kind">{getNodeKindLabel(currentNode.kind)}</p>
+                  <p className="kind">{getTreeNodeKindLabel(currentNode)}</p>
                   <p className="muted">{getNodeKindDescription(currentNode.kind)}</p>
                   <h4>{currentNode.label}</h4>
                   <p className="note">{currentNode.note || "(noteなし)"}</p>
@@ -145,7 +147,7 @@ export const PublicPage = () => {
                       {nextNodes.map((node) => (
                         <li key={node.id}>
                           <button type="button" className="transition-button" onClick={() => selectNode(node.id)}>
-                            <span className="kind">{getNodeKindLabel(node.kind)}</span>
+                            <span className="kind">{getTreeNodeKindLabel(node)}</span>
                             <span>{node.label}</span>
                           </button>
                         </li>

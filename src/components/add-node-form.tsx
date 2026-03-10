@@ -1,17 +1,18 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { nodeKindOptions } from "../lib/node-kind";
-import { NodeKind } from "../types/tree";
+import { getNodeKindOptionsForSchema } from "../lib/tree-schema";
+import { NodeKind, SchemaId } from "../types/tree";
 
 interface AddNodeFormProps {
+  schemaId: SchemaId;
   parentId: string;
   allowedKinds: NodeKind[];
   onSubmit: (input: { parentId: string; kind: NodeKind; label: string; note: string }) => void;
 }
 
-export const AddNodeForm = ({ parentId, allowedKinds, onSubmit }: AddNodeFormProps) => {
+export const AddNodeForm = ({ schemaId, parentId, allowedKinds, onSubmit }: AddNodeFormProps) => {
   const selectableKinds = useMemo(
-    () => nodeKindOptions.filter((option) => allowedKinds.includes(option.value)),
-    [allowedKinds],
+    () => getNodeKindOptionsForSchema(schemaId).filter((option) => allowedKinds.includes(option.value)),
+    [allowedKinds, schemaId],
   );
   const defaultKind = selectableKinds[0]?.value ?? null;
   const [label, setLabel] = useState("");
@@ -43,7 +44,7 @@ export const AddNodeForm = ({ parentId, allowedKinds, onSubmit }: AddNodeFormPro
     <form className="card form" onSubmit={submit}>
       <h3>子ノードを追加</h3>
       {selectableKinds.length === 0 ? (
-        <p className="muted">選択中ノードには、CTAルール上 追加できる子ノード種別がありません。</p>
+        <p className="muted">選択中ノードには、このスキーマ上で追加できる子ノード種別がありません。</p>
       ) : (
         <>
           <label>

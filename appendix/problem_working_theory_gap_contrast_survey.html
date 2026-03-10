@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Problem / Working Theory / Gap / Contrast ミニサーベイ</title>
+    <title>Seed / Problem / Working Theory / Gap / Contrast ミニサーベイ</title>
     <style>
       :root {
         color-scheme: light;
@@ -300,44 +300,54 @@
     <main class="page">
       <section class="hero">
         <span class="eyebrow">Focused Survey</span>
-        <h1>Problem / Working Theory / Gap / Contrast をどう切るべきか</h1>
+        <h1>Seed / Problem / Working Theory / Gap / Contrast をどう切るべきか</h1>
         <p class="lead">
-          結論だけ言うと、<code>Gap/Contrast</code> は文献上ひとつの操作ではない。
+          結論だけ言うと、入口は <code>Problem</code> 固定ではない。
+          文献を束ねると、探究の発火点は少なくとも
+          <strong>問い</strong>、<strong>アイデア</strong>、<strong>違和感</strong>の3種類ある。
+          そのうえで、<code>Gap/Contrast</code> は文献上ひとつの操作ではない。
           <strong>gap</strong> は「この理論では説明できないこと」の局所診断で、
           <strong>contrast</strong> は「複数の理論や解法を並べたときの差異」の比較活動である。
-          したがって、両者を1ノードで持つと理論上もUI上も曖昧になりやすい。
+          したがって、入口も中間操作も、1本鎖で固定するより分岐可能な設計の方が自然だ。
         </p>
         <div class="meta">
-          <span>対象: Problem → Working Theory → Gap/Contrast</span>
+          <span>対象: Seed → Problem / Working Theory → Gap / Contrast</span>
           <span>作成日: 2026-03-10</span>
           <span>ステータス: 提案サーベイ</span>
         </div>
       </section>
 
       <section class="section">
-        <h2>1. まず整理</h2>
-        <div class="grid two">
-          <div class="callout primary stack">
-            <h3>`gap` は何か</h3>
-            <p>
-              現在の working theory が説明できない点、証拠と合わない点、欠けている前提。
-              Knowledge Building では典型的に
-              <code>This theory cannot explain</code> や
-              <code>need to understand</code> の形で扱われる。
-            </p>
+        <h2>1. 入口は1つではない</h2>
+        <div class="grid three">
+          <div class="card stack">
+            <h3>Question Seed</h3>
+            <p>「なんでこうなるの？」という問いから始まる。</p>
+            <p class="small">Muukkonen 系の inquiry scaffold と相性が良い。</p>
           </div>
-          <div class="callout warn stack">
-            <h3>`contrast` は何か</h3>
-            <p>
-              2つ以上の理論、解法、表現、事例を比べて差異を見つけること。
-              comparison learning や productive failure の文脈では、
-              差異が構造理解や canonical explanation への準備になる。
-            </p>
+          <div class="card stack">
+            <h3>Idea Seed</h3>
+            <p>「こういう仕組みかも」という説明の思いつきから始まる。</p>
+            <p class="small">Inventing / productive failure 系はこちらが強い。</p>
+          </div>
+          <div class="card stack">
+            <h3>Anomaly Seed</h3>
+            <p>「ここだけ説明が合わない」という違和感やズレから始まる。</p>
+            <p class="small">mismatch を先に掴んで theory を立て直す流れ。</p>
           </div>
         </div>
-        <p class="small" style="margin-top: 12px;">
-          要するに、gap は理論の内側にある欠陥で、contrast は理論間にある関係である。
-        </p>
+        <div class="callout note stack" style="margin-top: 16px;">
+          <h3>ここでの読み替え</h3>
+          <p>
+            <code>Problem</code> は重要だが、常に入口とは限らない。
+            とくに <strong>Idea Seed</strong> では、working theory を出したあとで
+            「そもそもこの理論は何を説明しようとしているのか」を明確化する
+            <strong>problematisation</strong> が起きる。
+          </p>
+          <p>
+            なお、<code>gap</code> は理論の内側にある欠陥で、<code>contrast</code> は理論間にある比較関係である。
+          </p>
+        </div>
       </section>
 
       <section class="section">
@@ -356,26 +366,26 @@
               <tr>
                 <td>Muukkonen et al. (1999)</td>
                 <td><code>problem / working theory / scientific explanation</code> の足場</td>
-                <td>まず問いと仮説を立て、その後に科学的説明へ進む。</td>
-                <td>Problem と Working Theory を分ける基礎になる。</td>
+                <td>問い先行の流れを強く支えるが、working theory を早く出す設計でもある。</td>
+                <td>Question Seed の原型として読むのが自然。</td>
               </tr>
               <tr>
                 <td>Zhang et al. (2007)</td>
                 <td><code>My theory</code> → <code>This theory cannot explain</code> → <code>A better theory</code></td>
-                <td>gap は theory-local に記述され、改良理論へ接続される。</td>
-                <td><strong>Gap は独立ノードにできる</strong>が、Contrast とは別だと分かる。</td>
+                <td>theory を先に立て、説明不能点から better theory へ進む流れが見える。</td>
+                <td><strong>Idea Seed や Anomaly Seed からの改善ループ</strong>を支える。</td>
               </tr>
               <tr>
                 <td>Scardamalia &amp; Bereiter (2006)</td>
                 <td>idea improvement / rise above / authoritative information</td>
-                <td>理論の比較や改善は、共同体知識を前進させるための活動として置かれる。</td>
-                <td>Gap の先には evidence と synthesis が必要。</td>
+                <td>入口を固定せず、real ideas を共同体知識の改善対象として扱う。</td>
+                <td>Problem を絶対根にしない設計の理論的支えになる。</td>
               </tr>
               <tr>
                 <td>Schwartz &amp; Martin (2004)</td>
                 <td>Inventing to Prepare for Future Learning</td>
-                <td>不完全な自作解法を複数出し、比較することで後続説明の受け皿ができる。</td>
-                <td><strong>Contrast は複数案の比較活動</strong>として設計すべき。</td>
+                <td>不完全な自作解法を先に出す。つまり idea-first を明示的に肯定する。</td>
+                <td><strong>Idea Seed → Working Theory</strong> を正当化する中核文献。</td>
               </tr>
               <tr>
                 <td>Star &amp; Rittle-Johnson (2009)</td>
@@ -396,45 +406,33 @@
 
       <section class="section">
         <h2>3. 文献群をつなぐと何が見えるか</h2>
-        <div class="stage-grid">
+        <div class="grid three">
           <div class="stage stack">
-            <div class="stage-num">1</div>
-            <h3>Problem</h3>
-            <p>何が不明か、どこに説明要求があるかを立てる。</p>
+            <div class="stage-num">Q</div>
+            <h3>Question Seed の流れ</h3>
+            <p><code>Seed → Problem → Working Theory → Mismatch → Contrast → Evidence → Better Theory</code></p>
           </div>
           <div class="stage stack">
-            <div class="stage-num">2</div>
-            <h3>Working Theory</h3>
-            <p>いまの仮説や説明を書く。正確さより前進可能性を重視する。</p>
+            <div class="stage-num">I</div>
+            <h3>Idea Seed の流れ</h3>
+            <p><code>Seed → Working Theory → Problematisation → Mismatch → Contrast → Evidence → Better Theory</code></p>
           </div>
           <div class="stage stack">
-            <div class="stage-num">3</div>
-            <h3>Gap / Mismatch</h3>
-            <p>この理論では何が説明できないか、何が欠けているかを見る。</p>
-          </div>
-          <div class="stage stack">
-            <div class="stage-num">4</div>
-            <h3>Contrast</h3>
-            <p>他の theory や解法と比べ、どこが違うか、何が分岐点かを見る。</p>
-          </div>
-          <div class="stage stack">
-            <div class="stage-num">5</div>
-            <h3>Evidence</h3>
-            <p>資料、実行結果、教師説明、テスト、観察で理論をふるいにかける。</p>
-          </div>
-          <div class="stage stack">
-            <div class="stage-num">6</div>
-            <h3>Better Theory</h3>
-            <p>改善された説明や rise-above を作る。</p>
+            <div class="stage-num">A</div>
+            <h3>Anomaly Seed の流れ</h3>
+            <p><code>Seed → Mismatch / Oddity → Working Theory → Problematisation → Contrast → Evidence → Better Theory</code></p>
           </div>
         </div>
         <div class="callout note stack" style="margin-top: 16px;">
           <h3>重要な読み替え</h3>
           <p>
+            文献上、<strong>入口は単一ではない</strong>。Question-first も Idea-first も成り立つ。
+          </p>
+          <p>
             文献上、<code>gap</code> は theory refinement の装置で、
             <code>contrast</code> は comparison-based learning の装置である。
             したがって、
-            <strong>Gap/Contrast を同一ノードに押し込むより、Gap をノード、Contrast をビューまたは操作として扱う方が自然</strong>だ。
+            <strong>Problem を入口に固定するより、Seed を入口にして Gap をノード、Contrast をビューまたは操作として扱う方が自然</strong>だ。
           </p>
         </div>
       </section>
@@ -444,27 +442,27 @@
         <div class="grid three">
           <div class="card stack">
             <h3>判断 1</h3>
-            <p><strong>Problem</strong> と <strong>Working Theory</strong> は分ける。</p>
-            <p class="small">Muukkonen 系の最小骨格。</p>
+            <p><strong>入口は Problem ではなく Seed</strong> にする。</p>
+            <p class="small">問い・アイデア・違和感のどれでも始められるようにする。</p>
           </div>
           <div class="card stack">
             <h3>判断 2</h3>
-            <p><strong>Gap</strong> は theory の子として保持する。</p>
-            <p class="small">Zhang et al. の <code>This theory cannot explain</code> に対応。</p>
+            <p><strong>Problem</strong> と <strong>Working Theory</strong> は分ける。</p>
+            <p class="small">ただし生成順は固定しない。Idea Seed では theory が先でよい。</p>
           </div>
           <div class="card stack">
             <h3>判断 3</h3>
-            <p><strong>Contrast</strong> は複数 theory の比較ビューとして扱う。</p>
-            <p class="small">Schwartz / Star / Kapur 系に整合的。</p>
+            <p><strong>Gap</strong> は theory の子、<strong>Contrast</strong> は比較ビューに分ける。</p>
+            <p class="small">Zhang 系と Schwartz / Kapur 系を両立できる。</p>
           </div>
         </div>
 
         <div class="callout primary stack" style="margin-top: 16px;">
           <h3>最小構成の提案</h3>
           <p>
-            最小でも <code>problem</code>、<code>working_theory</code>、<code>mismatch</code>、
-            <code>evidence</code>、<code>synthesis</code> は持った方がよい。
-            そして <code>contrast</code> はノード種別でなく、同一 problem 配下の theory を並べて比較する UI に落とす方がきれい。
+            最小でも <code>seed</code>、<code>problem</code>、<code>working_theory</code>、
+            <code>mismatch</code>、<code>evidence</code>、<code>synthesis</code> は持った方がよい。
+            そして <code>contrast</code> はノード種別でなく、同一 seed から生えた theory を並べて比較する UI に落とす方がきれい。
           </p>
         </div>
       </section>

@@ -7,13 +7,14 @@ import { NodeDetail } from "../components/node-detail";
 import { TaskDiagramPanel } from "../components/task-diagram-panel";
 import { TreeOutline } from "../components/tree-outline";
 import { useEditorAuth } from "../hooks/use-editor-auth";
+import { getTreeSchema, schemaIds } from "../lib/tree-schema";
 import {
-  addRootTaskStep,
+  addRootNode,
   getAncestors,
   getAddableKinds,
   getEditableKinds,
   getNode,
-  getRootTaskSteps,
+  getRootNodes,
   getUnattachedNodes,
   addNode,
   attachExistingNode,
@@ -21,11 +22,12 @@ import {
   updateNode,
 } from "../lib/tree-ops";
 import { getOrCreateDraft, publishDraft, saveDraft } from "../lib/tree-store";
-import { NodeKind, TreeDraft } from "../types/tree";
+import { NodeKind, SchemaId, SeedType, TreeDraft } from "../types/tree";
 
 export const AdminPage = () => {
   const { user, loading: authLoading, error: authError, login, logout, isMock } = useEditorAuth();
-  const [treeId, setTreeId] = useState("marubou-001");
+  const [treeId, setTreeId] = useState("inquiry-001");
+  const [draftSchemaId, setDraftSchemaId] = useState<SchemaId>("progressive_inquiry");
   const [tree, setTree] = useState<TreeDraft | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState("");
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(new Set());
@@ -45,8 +47,9 @@ export const AdminPage = () => {
     setMessage(null);
 
     try {
-      const nextTree = await getOrCreateDraft(treeId);
+      const nextTree = await getOrCreateDraft(treeId, draftSchemaId);
       setTree(nextTree);
+      setDraftSchemaId(nextTree.schemaId);
       setSelectedNodeId(nextTree.rootNodeId);
       setExpandedNodeIds(new Set([nextTree.rootNodeId]));
       setDirty(false);
@@ -57,11 +60,15 @@ export const AdminPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [canLoad, treeId]);
+  }, [canLoad, draftSchemaId, treeId]);
 
   useEffect(() => {
+    if (!canLoad) {
+      return;
+    }
+
     void loadDraft();
-  }, [loadDraft]);
+  }, [canLoad, treeId]);
 
   const toggleExpand = (nodeId: string) => {
     setExpandedNodeIds((prev) => {
@@ -136,6 +143,7 @@ export const AdminPage = () => {
     kind: NodeKind;
     label: string;
     note: string;
+    seedType?: SeedType | null;
   }) => {
     if (!tree) {
       return;
@@ -152,23 +160,27 @@ export const AdminPage = () => {
     }
   };
 
-  const handleAddRootTaskStep = (input: { label: string; note: string }) => {
+  const handleAddRootTaskStep = (input: {
+    label: string;
+    note: string;
+    seedType?: SeedType | null;
+  }) => {
     if (!tree) {
       return;
     }
 
     try {
-      const nextTree = addRootTaskStep(tree, input);
+      const nextTree = addRootNode(tree, input);
       const addedNode = nextTree.nodes[nextTree.nodes.length - 1];
       setTree(nextTree);
       setDirty(true);
-      setMessage("Task Step を追加しました。保存するとdraftに反映されます。");
+      setMessage("root ノードを追加しました。保存するとdraftに反映されます。");
       if (addedNode) {
         setSelectedNodeId(addedNode.id);
         setExpandedNodeIds((prev) => new Set(prev).add(addedNode.id));
       }
     } catch (error) {
-      const text = error instanceof Error ? error.message : "Task Step 追加に失敗しました。";
+      const text = error instanceof Error ? error.message : "root ノード追加に失敗しました。";
       setMessage(text);
     }
   };
@@ -235,18 +247,21 @@ export const AdminPage = () => {
   };
 
   const selectedNode = tree ? getNode(tree, selectedNodeId) ?? null : null;
-  const rootTaskSteps = tree ? getRootTaskSteps(tree) : [];
+  const rootTaskSteps = tree ? getRootNodes(tree) : [];
   const addableKinds = tree && selectedNode ? getAddableKinds(tree, selectedNode.id) : [];
   const editableKinds = tree && selectedNode ? getEditableKinds(tree, selectedNode.id) : [];
   const unattachedNodes = tree ? getUnattachedNodes(tree) : [];
   const attachableUnattachedNodes = unattachedNodes.filter((node) => addableKinds.includes(node.kind));
+  const schema = tree ? getTreeSchema(tree.schemaId) : null;
 
   return (
     <div className="page">
       <header className="page-header">
         <div>
           <h1>管理画面</h1>
-          <p className="muted">CTAフォーマット準拠。Task Diagram の root Task Step を管理できます。</p>
+          <p className="muted">
+            {schema ? `${schema.label} スキーマ` : "tree"} を編集します。root ノードを管理できます。
+          </p>
         </div>
         <nav>
           <a href="/">公開ビューへ</a>
@@ -267,6 +282,22 @@ export const AdminPage = () => {
           treeId
           <input value={treeId} onChange={(event) => setTreeId(event.target.value)} />
         </label>
+        <label>
+          新規draft schema
+          <select
+            value={draftSchemaId}
+            onChange={(event) => setDraftSchemaId(event.target.value as SchemaId)}
+          >
+            {schemaIds.map((schemaId) => {
+              const option = getTreeSchema(schemaId);
+              return (
+                <option key={schemaId} value={schemaId}>
+                  {option.label}
+                </option>
+              );
+            })}
+          </select>
+        </label>
         <button type="button" className="secondary" onClick={() => void loadDraft()} disabled={!canLoad || busy}>
           draft再読込
         </button>
@@ -285,6 +316,7 @@ export const AdminPage = () => {
       {tree ? (
         <>
           <TaskDiagramPanel
+            tree={tree}
             roots={rootTaskSteps}
             startRootId={tree.rootNodeId}
             selectedNodeId={selectedNodeId}
@@ -302,8 +334,18 @@ export const AdminPage = () => {
             />
             <NodeDetail tree={tree} selectedNodeId={selectedNodeId} />
             <div className="stack">
-              <EditNodeForm node={selectedNode} editableKinds={editableKinds} onSubmit={handleUpdateNode} />
-              <AddNodeForm parentId={selectedNodeId} allowedKinds={addableKinds} onSubmit={handleAddNode} />
+              <EditNodeForm
+                schemaId={tree.schemaId}
+                node={selectedNode}
+                editableKinds={editableKinds}
+                onSubmit={handleUpdateNode}
+              />
+              <AddNodeForm
+                schemaId={tree.schemaId}
+                parentId={selectedNodeId}
+                allowedKinds={addableKinds}
+                onSubmit={handleAddNode}
+              />
               <AttachNodeForm
                 nodes={attachableUnattachedNodes}
                 onSubmit={handleAttachNode}

@@ -793,40 +793,52 @@
         <h2>4. 今の構想に落とすなら</h2>
         <p>
           文献に最も整合する実装像は、学習者のコード説明を単発採点せず、
-          下のような知識前進ループとして扱うことだ。
+          下のような知識前進ループとして扱うことだ。ここで重要なのは、
+          <strong>入口は Problem 固定ではなく Seed である</strong>ことだ。
         </p>
         <div class="flow">
           <div class="step">
             <div class="num">1</div>
-            <strong>Problem</strong>
-            <span>何が分からないか、どの行・状態変化が曖昧かを立てる。</span>
+            <strong>Seed</strong>
+            <span>問い、アイデア、違和感のいずれかから探究を始める。</span>
           </div>
           <div class="step">
             <div class="num">2</div>
-            <strong>Working Theory</strong>
-            <span>いまの説明を書く。誤っていてもよい。</span>
+            <strong>Problem / Working Theory</strong>
+            <span>問い先行なら Problem を、アイデア先行なら Working Theory を先に立てる。</span>
           </div>
           <div class="step">
             <div class="num">3</div>
-            <strong>Gap / Contrast</strong>
-            <span>AIや他者が不足点、競合説明、未確認前提を指摘する。</span>
+            <strong>Problematisation / Theory Articulation</strong>
+            <span>まだ無い側を補い、「この理論は何を説明するのか」を明確化する。</span>
           </div>
           <div class="step">
             <div class="num">4</div>
+            <strong>Mismatch / Contrast</strong>
+            <span>不足点、競合説明、未確認前提、説明できない点を洗い出す。</span>
+          </div>
+          <div class="step">
+            <div class="num">5</div>
             <strong>Scientific Explanation</strong>
             <span>教材・実行結果・外部資料で根拠を入れる。</span>
           </div>
           <div class="step">
-            <div class="num">5</div>
+            <div class="num">6</div>
             <strong>Rise Above</strong>
             <span>説明を統合し、より良い記述やルールにまとめ直す。</span>
           </div>
           <div class="step">
-            <div class="num">6</div>
+            <div class="num">7</div>
             <strong>Community Memory</strong>
             <span>改善された説明を共有資産として残し、次の説明の土台にする。</span>
           </div>
         </div>
+
+        <p class="small" style="margin-top: 14px;">
+          問い先行なら <code>Seed → Problem → Working Theory</code>、アイデア先行なら
+          <code>Seed → Working Theory → Problematisation</code>、違和感先行なら
+          <code>Seed → Mismatch → Working Theory</code> の変種になる。
+        </p>
 
         <div class="grid three" style="margin-top: 16px;">
           <div class="card stack">

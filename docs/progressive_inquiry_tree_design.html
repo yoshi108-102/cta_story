@@ -307,9 +307,10 @@
         <span class="eyebrow">Design Spec</span>
         <h1>Progressive Inquiry Tree 設計書</h1>
         <p class="lead">
-          目的は、<code>Problem -> Working Theory -> Gap/Contrast</code> を曖昧な1本鎖として持つのではなく、
-          文献に沿って <strong>theory-local な gap</strong> と
-          <strong>theory-between な contrast</strong> を分離した設計へ落とすこと。
+          目的は、<code>Problem</code> を入口と根に固定するのではなく、
+          <strong>Question Seed / Idea Seed / Anomaly Seed</strong> の3種類から始まる探究を受け止めること。
+          そのうえで、文献に沿って <strong>theory-local な gap</strong> と
+          <strong>theory-between な contrast</strong> を分離した設計へ落とす。
           既存の tree editor が単一親の木構造であることを前提に、無理なく導入できる形を採る。
         </p>
         <div class="meta">
@@ -326,12 +327,16 @@
           <div class="callout good stack">
             <h3 class="decision">採用</h3>
             <p>
+              入口の根は <code>problem</code> ではなく <code>seed</code> にする。
+              <code>seedType = question | idea | anomaly</code> を持たせる。
+            </p>
+            <p>
               <code>gap</code> は <code>working_theory</code> の子ノードとして持つ。
               名前は <code>mismatch</code> に寄せる。
             </p>
             <p>
               <code>contrast</code> はノード種別にしない。
-              同一 <code>problem</code> 配下の複数 theory を比較する
+              同一 <code>seed</code> 配下の複数 theory を比較する
               <strong>ビュー / 操作 / 派生オブジェクト</strong>として扱う。
             </p>
           </div>
@@ -357,12 +362,12 @@
             <p><code>Gap/Contrast</code> には、理論の欠陥と理論間比較の2機能が混在している。</p>
           </div>
           <div class="card stack">
-            <h3>構造の不一致</h3>
-            <p>gap は1理論にぶら下がるが、contrast は2理論以上をまたぐ。単一ノードにしにくい。</p>
+            <h3>入口の誤固定</h3>
+            <p>問いから始まる場合だけを標準にすると、思いつきや違和感から始まる探究を構造化できない。</p>
           </div>
           <div class="card stack">
             <h3>UIの曖昧さ</h3>
-            <p>ユーザーは「不足点を書く」のか「他説との違いを書く」のかで迷う。AIもコメント先を決めにくい。</p>
+            <p>ユーザーは「まず問題を書くのか」「まず考えを書くのか」で迷う。さらに Gap と Contrast も分かれない。</p>
           </div>
         </div>
       </section>
@@ -381,16 +386,22 @@
             </thead>
             <tbody>
               <tr>
+                <td><code>seed</code></td>
+                <td>探究の発火点。問い、アイデア、違和感を束ねる親</td>
+                <td>何がこの探究を始めたか</td>
+                <td><code>problem</code>, <code>working_theory</code>, <code>evidence</code>, <code>synthesis</code></td>
+              </tr>
+              <tr>
                 <td><code>problem</code></td>
-                <td>説明したい問い・不明点・タスク</td>
-                <td>何がまだ分からないか</td>
-                <td><code>working_theory</code>, <code>synthesis</code></td>
+                <td>説明したい問い・不明点・タスクの明確化</td>
+                <td>この seed で何を説明したいのか</td>
+                <td>なし</td>
               </tr>
               <tr>
                 <td><code>working_theory</code></td>
                 <td>現時点の説明・仮説・解釈</td>
                 <td>いまどう説明するか</td>
-                <td><code>mismatch</code>, <code>evidence</code>, <code>working_theory</code></td>
+                <td><code>mismatch</code>, <code>evidence</code>, <code>working_theory</code>, <code>problem</code></td>
               </tr>
               <tr>
                 <td><code>mismatch</code></td>
@@ -418,15 +429,21 @@
           <h3>ポイント</h3>
           <p>
             <code>contrast</code> はここにいない。contrast は
-            <strong>同一 problem 配下の複数 <code>working_theory</code> を比較する UI 操作</strong>で表現する。
+            <strong>同一 seed 配下の複数 <code>working_theory</code> を比較する UI 操作</strong>で表現する。
             つまり node kind ではなく relation/view として持つ。
+          </p>
+          <p>
+            <code>problem</code> は重要だが、構造上の親ではない。Idea Seed では
+            <code>working_theory</code> のあとから <code>problem</code> を明確化する
+            <strong>problematisation</strong> が起きてよい。
           </p>
         </div>
       </section>
 
       <section class="section">
         <h2>4. 木構造としての最小表現</h2>
-        <pre><code>problem: なぜこのループは最後の要素を処理しないのか
+        <pre><code>seed (idea): 末尾要素が飛ぶのは境界条件のせいかも
+  problem: なぜこのループは最後の要素を処理しないのか
   working_theory: i &lt; arr.length - 1 だから最後が飛ぶ
     mismatch: empty array のときの挙動をまだ説明していない
       evidence: 実行トレースで i の値と条件式を確認
@@ -436,7 +453,7 @@
     evidence: 途中の return / break を確認
   synthesis: 原因は境界条件の設定と break 条件の組み合わせ</code></pre>
         <p class="small" style="margin-top: 12px;">
-          同じ <code>problem</code> の下に複数の <code>working_theory</code> を置けるので、alternative theory は専用 kind なしでも表現できる。
+          同じ <code>seed</code> の下に複数の <code>working_theory</code> を置けるので、alternative theory は専用 kind なしでも表現できる。
         </p>
       </section>
 
@@ -454,7 +471,8 @@
           <div class="card stack">
             <h3>MVP の実装形</h3>
             <ul>
-              <li>Problem を選ぶと、その直下の theory を横並びで比較表示する。</li>
+              <li>Seed を選ぶと、その配下の theory を横並びで比較表示する。</li>
+              <li>Problem がある場合は compare panel の見出しに出すが、比較の親は seed のままにする。</li>
               <li>比較ビューでは「一致点」「相違点」「判別に必要な evidence」を出す。</li>
               <li>保存は必須にしない。最初は派生表示でよい。</li>
             </ul>
@@ -473,49 +491,34 @@
 
       <section class="section">
         <h2>6. ユーザーフロー</h2>
-        <div class="flow">
-          <div class="step stack">
-            <div class="num">1</div>
-            <h3>Problem 作成</h3>
-            <p>説明したい問いやコード片に対する疑問を立てる。</p>
+        <div class="grid three">
+          <div class="card stack">
+            <h3>Question Seed</h3>
+            <p><code>Seed → Problem → Working Theory → Mismatch → Compare → Evidence → Synthesis</code></p>
           </div>
-          <div class="step stack">
-            <div class="num">2</div>
-            <h3>Theory 追加</h3>
-            <p>1つ以上の working theory を追加する。</p>
+          <div class="card stack">
+            <h3>Idea Seed</h3>
+            <p><code>Seed → Working Theory → Problematisation → Mismatch → Compare → Evidence → Synthesis</code></p>
           </div>
-          <div class="step stack">
-            <div class="num">3</div>
-            <h3>Mismatch 追加</h3>
-            <p>各 theory の不足点や矛盾点を書き出す。</p>
-          </div>
-          <div class="step stack">
-            <div class="num">4</div>
-            <h3>Compare</h3>
-            <p>Problem 直下の theory を比較して差異を可視化する。</p>
-          </div>
-          <div class="step stack">
-            <div class="num">5</div>
-            <h3>Evidence 追加</h3>
-            <p>資料や実行結果でどの theory が妥当かを絞る。</p>
-          </div>
-          <div class="step stack">
-            <div class="num">6</div>
-            <h3>Synthesis 作成</h3>
-            <p>改良説明または共同体の暫定合意を残す。</p>
+          <div class="card stack">
+            <h3>Anomaly Seed</h3>
+            <p><code>Seed → Oddity / Mismatch → Working Theory → Problematisation → Compare → Evidence → Synthesis</code></p>
           </div>
         </div>
+        <p class="small" style="margin-top: 12px;">
+          ここでの problematisation は、新しい node kind でなくてもよい。まずは <code>problem</code> ノードを後から追加・明確化する操作として扱える。
+        </p>
       </section>
 
       <section class="section">
         <h2>7. AI 支援の置き場所</h2>
         <div class="grid three">
           <div class="card stack">
-            <h3>Problem 向け</h3>
+            <h3>Seed / Problematisation 向け</h3>
             <ul>
-              <li>問いの粒度を整える</li>
-              <li>前提条件の不足を指摘する</li>
-              <li>比較すべき対象を提案する</li>
+              <li>その seed が問い・アイデア・違和感のどれかを整理する</li>
+              <li>「これは何を説明しようとしているのか」を言語化させる</li>
+              <li>比較すべき対象や条件を提案する</li>
             </ul>
           </div>
           <div class="card stack">
@@ -561,7 +564,7 @@
               <tr>
                 <td><code>src/types/tree.ts</code></td>
                 <td>固定の <code>NodeKind</code> union</td>
-                <td><code>schemaId</code> を tree に追加し、kind は schema registry で解決する。</td>
+                <td><code>schemaId</code> を tree に追加し、必要なら <code>TreeNode</code> に <code>seedType?</code> を持たせる。</td>
               </tr>
               <tr>
                 <td><code>src/lib/node-kind.ts</code></td>
@@ -579,14 +582,19 @@
                 <td>schema 由来の options を描画する。</td>
               </tr>
               <tr>
+                <td><code>src/components/task-diagram-panel.tsx</code></td>
+                <td>root Task Step の管理</td>
+                <td>root Seed の管理へ一般化し、<code>question / idea / anomaly</code> の起点を選べるようにする。</td>
+              </tr>
+              <tr>
                 <td><code>src/components/node-detail.tsx</code></td>
                 <td>直下の子ノード列挙</td>
-                <td>Problem 選択時に compare panel を追加する。</td>
+                <td>Seed 選択時に compare panel を追加する。Problem は contextual note として見せる。</td>
               </tr>
               <tr>
                 <td><code>src/pages/admin-page.tsx</code></td>
                 <td>CTA 管理画面</td>
-                <td>schema ごとの説明文と root 作成UIを切り替える。</td>
+                <td>schema ごとの説明文と root 作成UIを切り替え、inquiry schema では Seed 起点で編集する。</td>
               </tr>
             </tbody>
           </table>
@@ -606,9 +614,10 @@
         <h2>9. 推奨する実装フェーズ</h2>
         <ol>
           <li>schema registry 化。CTA schema と inquiry schema を並立させる。</li>
-          <li>inquiry schema で <code>problem / working_theory / mismatch / evidence / synthesis</code> を追加する。</li>
-          <li>Problem 選択時の compare view を入れる。最初は非保存でよい。</li>
-          <li>AI で mismatch 候補と compare summary を生成する。confidence と根拠必須。</li>
+          <li>inquiry schema で <code>seed / problem / working_theory / mismatch / evidence / synthesis</code> を追加する。</li>
+          <li>root editor を Seed 起点へ切り替え、<code>seedType</code> を選べるようにする。</li>
+          <li>Seed 選択時の compare view を入れる。最初は非保存でよい。</li>
+          <li>AI で problematisation 支援、mismatch 候補、compare summary を生成する。confidence と根拠必須。</li>
           <li>必要なら compare 結果を保存オブジェクト化する。</li>
         </ol>
       </section>
@@ -626,8 +635,8 @@
           <div class="card stack">
             <h3>未解決 2</h3>
             <p>
-              evidence を theory 支持・反証で分けるかどうか。
-              まずは note 内記述でよく、必要になったら stance を追加する。
+              1つの <code>seed</code> から複数の <code>problem</code> が生えてよいか。
+              実際にはありうるので、MVP は許可しつつ compare の単位を seed に保つのが現実的。
             </p>
           </div>
         </div>

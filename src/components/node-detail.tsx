@@ -1,4 +1,5 @@
-import { getNodeKindDescription, getNodeKindLabel } from "../lib/node-kind";
+import { getNodeKindDescription, getTreeNodeKindLabel } from "../lib/node-kind";
+import { getTreeSchema } from "../lib/tree-schema";
 import { getAncestors, getChildren, getNode } from "../lib/tree-ops";
 import { TreeDraft } from "../types/tree";
 
@@ -21,10 +22,11 @@ export const NodeDetail = ({ tree, selectedNodeId }: NodeDetailProps) => {
 
   const ancestors = getAncestors(tree, node.id);
   const children = getChildren(tree, node.id);
+  const schema = getTreeSchema(tree.schemaId);
 
   return (
     <div className="card">
-      <h3>CTAフォーカス詳細</h3>
+      <h3>{schema.label} ノード詳細</h3>
       <div className="crumbs">
         {ancestors.map((ancestor) => (
           <span key={ancestor.id} className="crumb">
@@ -34,7 +36,7 @@ export const NodeDetail = ({ tree, selectedNodeId }: NodeDetailProps) => {
         <span className="crumb active">{node.label}</span>
       </div>
       <div className="focus-node">
-        <p className="kind">{getNodeKindLabel(node.kind)}</p>
+        <p className="kind">{getTreeNodeKindLabel(node)}</p>
         <p className="muted">{getNodeKindDescription(node.kind)}</p>
         <h4>{node.label}</h4>
         <p className="note">{node.note || "(noteなし)"}</p>
@@ -47,7 +49,7 @@ export const NodeDetail = ({ tree, selectedNodeId }: NodeDetailProps) => {
           <ul>
             {children.map((child) => (
               <li key={child.id}>
-                <span className="kind">{getNodeKindLabel(child.kind)}</span>
+                <span className="kind">{getTreeNodeKindLabel(child)}</span>
                 {child.label}
               </li>
             ))}

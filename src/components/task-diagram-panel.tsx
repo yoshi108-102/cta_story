@@ -1,16 +1,20 @@
 import { FormEvent, useState } from "react";
-import { TreeNode } from "../types/tree";
+import { getNodeKindLabel, getSeedTypeLabel, seedTypes } from "../lib/node-kind";
+import { getTreeSchema } from "../lib/tree-schema";
+import { SeedType, TreeDraft, TreeNode } from "../types/tree";
 
 interface TaskDiagramPanelProps {
+  tree: TreeDraft;
   roots: TreeNode[];
   startRootId: string;
   selectedNodeId: string;
   onSelectStartRoot: (rootNodeId: string) => void;
   onFocusRoot: (rootNodeId: string) => void;
-  onAddRoot: (input: { label: string; note: string }) => void;
+  onAddRoot: (input: { label: string; note: string; seedType?: SeedType | null }) => void;
 }
 
 export const TaskDiagramPanel = ({
+  tree,
   roots,
   startRootId,
   selectedNodeId,
@@ -18,25 +22,35 @@ export const TaskDiagramPanel = ({
   onFocusRoot,
   onAddRoot,
 }: TaskDiagramPanelProps) => {
+  const schema = getTreeSchema(tree.schemaId);
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
+  const [seedType, setSeedType] = useState<SeedType>("question");
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onAddRoot({ label, note });
+    onAddRoot({
+      label,
+      note,
+      seedType: tree.schemaId === "progressive_inquiry" ? seedType : null,
+    });
     setLabel("");
     setNote("");
+    setSeedType("question");
   };
 
   return (
     <section className="card stack">
       <div>
-        <h3>Task Diagram</h3>
-        <p className="muted">ルート Task Step を追加し、開始ルートを選択します。</p>
+        <h3>{schema.rootCollectionLabel}</h3>
+        <p className="muted">{schema.rootHelperText}</p>
+        <p className="muted">
+          {schema.label}: {schema.description}
+        </p>
       </div>
 
       {roots.length === 0 ? (
-        <p className="error">root Task Step がありません。まず1件追加してください。</p>
+        <p className="error">root {getNodeKindLabel(schema.rootKind)} がありません。まず1件追加してください。</p>
       ) : (
         <>
           <label>
@@ -62,7 +76,14 @@ export const TaskDiagramPanel = ({
                   className={`task-root-item ${isSelected ? "selected" : ""}`}
                   onClick={() => onFocusRoot(root.id)}
                 >
-                  <span>{root.label}</span>
+                  <span className="task-root-main">
+                    <span>{root.label}</span>
+                    <span className="muted">
+                      {root.kind === "seed" && root.seedType
+                        ? getSeedTypeLabel(root.seedType)
+                        : getNodeKindLabel(root.kind)}
+                    </span>
+                  </span>
                   <span className="task-root-tags">
                     {isStartRoot ? <span className="badge">開始</span> : null}
                     {isSelected ? <span className="badge">編集中</span> : null}
@@ -75,7 +96,19 @@ export const TaskDiagramPanel = ({
       )}
 
       <form className="form" onSubmit={submit}>
-        <h4>Task Step を追加</h4>
+        <h4>{getNodeKindLabel(schema.rootKind)} を追加</h4>
+        {tree.schemaId === "progressive_inquiry" ? (
+          <label>
+            Seed Type
+            <select value={seedType} onChange={(event) => setSeedType(event.target.value as SeedType)}>
+              {seedTypes.map((option) => (
+                <option key={option} value={option}>
+                  {getSeedTypeLabel(option)}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <label>
           ラベル (120文字)
           <input
@@ -96,7 +129,7 @@ export const TaskDiagramPanel = ({
           />
         </label>
         <button type="submit" className="secondary">
-          Task Step を追加
+          {getNodeKindLabel(schema.rootKind)} を追加
         </button>
       </form>
     </section>

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { getNodeKindLabel } from "../lib/node-kind";
+import { getTreeNodeKindLabel } from "../lib/node-kind";
+import { getTreeSchema } from "../lib/tree-schema";
 import { TreeDraft, TreeNode } from "../types/tree";
 
 interface TreeOutlineProps {
@@ -17,6 +18,7 @@ export const TreeOutline = ({
   onSelect,
   onToggle,
 }: TreeOutlineProps) => {
+  const schema = getTreeSchema(tree.schemaId);
   const childrenMap = useMemo(() => {
     const map = new Map<string, TreeNode[]>();
 
@@ -87,7 +89,7 @@ export const TreeOutline = ({
           </button>
           <button type="button" className="node-label" onClick={() => onSelect(node.id)}>
             <span className="depth-pill">{depth === 0 ? "ROOT" : `Lv.${depth}`}</span>
-            <span className="kind">{getNodeKindLabel(node.kind)}</span>
+            <span className="kind">{getTreeNodeKindLabel(node)}</span>
             <span>{node.label}</span>
           </button>
           <span className="node-meta">{hasChildren ? `${children.length}遷移` : "終点"}</span>
@@ -101,7 +103,7 @@ export const TreeOutline = ({
 
   const root =
     tree.nodes.find((node) => node.id === tree.rootNodeId) ??
-    tree.nodes.find((node) => node.parentId === null && node.kind === "task_step");
+    tree.nodes.find((node) => node.parentId === null && node.kind === schema.rootKind);
 
   if (!root) {
     return <p className="error">root nodeが見つかりません。</p>;
@@ -110,7 +112,9 @@ export const TreeOutline = ({
   return (
     <div className="card">
       <h3>樹形図</h3>
-      <p className="muted">上から下に進む構造です。行の末尾に、次の遷移先件数を表示します。</p>
+      <p className="muted">
+        {schema.label} の木構造です。行の末尾に、次の遷移先件数を表示します。
+      </p>
       <ul className="outline-list">{renderNode(root, 0)}</ul>
     </div>
   );

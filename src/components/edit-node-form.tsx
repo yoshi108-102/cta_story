@@ -1,17 +1,25 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { nodeKindOptions } from "../lib/node-kind";
-import { NodeKind, TreeNode } from "../types/tree";
+import { getNodeKindOptionsForSchema } from "../lib/tree-schema";
+import { getSeedTypeLabel, seedTypes } from "../lib/node-kind";
+import { NodeKind, SchemaId, SeedType, TreeNode } from "../types/tree";
 
 interface EditNodeFormProps {
+  schemaId: SchemaId;
   node: TreeNode | null;
   editableKinds: NodeKind[];
-  onSubmit: (input: { nodeId: string; kind: NodeKind; label: string; note: string }) => void;
+  onSubmit: (input: {
+    nodeId: string;
+    kind: NodeKind;
+    label: string;
+    note: string;
+    seedType?: SeedType | null;
+  }) => void;
 }
 
-export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProps) => {
+export const EditNodeForm = ({ schemaId, node, editableKinds, onSubmit }: EditNodeFormProps) => {
   const selectableKinds = useMemo(
-    () => nodeKindOptions.filter((option) => editableKinds.includes(option.value)),
-    [editableKinds],
+    () => getNodeKindOptionsForSchema(schemaId).filter((option) => editableKinds.includes(option.value)),
+    [editableKinds, schemaId],
   );
   const effectiveOptions = useMemo(() => {
     if (!node) {
@@ -22,17 +30,19 @@ export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProp
       return selectableKinds;
     }
 
-    return nodeKindOptions.filter((option) => option.value === node.kind);
-  }, [node, selectableKinds]);
+    return getNodeKindOptionsForSchema(schemaId).filter((option) => option.value === node.kind);
+  }, [node, schemaId, selectableKinds]);
   const [kind, setKind] = useState<NodeKind | "">("");
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
+  const [seedType, setSeedType] = useState<SeedType>("question");
 
   useEffect(() => {
     if (!node) {
       setKind("");
       setLabel("");
       setNote("");
+      setSeedType("question");
       return;
     }
 
@@ -43,7 +53,8 @@ export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProp
     }
     setLabel(node.label);
     setNote(node.note);
-  }, [effectiveOptions, node?.id, node?.kind, node?.label, node?.note]);
+    setSeedType(node.seedType ?? "question");
+  }, [effectiveOptions, node?.id, node?.kind, node?.label, node?.note, node?.seedType]);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -56,6 +67,7 @@ export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProp
       kind,
       label,
       note,
+      seedType: kind === "seed" ? seedType : null,
     });
   };
 
@@ -67,7 +79,7 @@ export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProp
       ) : (
         <>
           {selectableKinds.length === 0 ? (
-            <p className="muted">このノードはCTAルール上、種別変更できません。ラベル/注記のみ更新できます。</p>
+            <p className="muted">このノードは現在のスキーマ上、種別変更できません。ラベル/注記のみ更新できます。</p>
           ) : null}
           <label>
             種別
@@ -83,6 +95,18 @@ export const EditNodeForm = ({ node, editableKinds, onSubmit }: EditNodeFormProp
               ))}
             </select>
           </label>
+          {kind === "seed" ? (
+            <label>
+              Seed Type
+              <select value={seedType} onChange={(event) => setSeedType(event.target.value as SeedType)}>
+                {seedTypes.map((option) => (
+                  <option key={option} value={option}>
+                    {getSeedTypeLabel(option)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <label>
             ラベル (120文字)
             <input

@@ -125,6 +125,11 @@ ul {
   text-align: left;
 }
 
+.task-root-main {
+  display: grid;
+  gap: 2px;
+}
+
 .task-root-item.selected {
   border-color: var(--brand);
   background: var(--brand-soft);

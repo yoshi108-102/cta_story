@@ -6,8 +6,9 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { backendMode, firebaseServices } from "./firebase";
-import { createSeedTree, parseTreeDraft } from "./tree-ops";
-import { TreeDraft, TreeVersion } from "../types/tree";
+import { createDefaultTree, parseTreeDraft } from "./tree-ops";
+import { SchemaId, TreeDraft, TreeVersion } from "../types/tree";
+import { defaultSchemaId } from "./tree-schema";
 
 interface StoredTreePayload {
   status: TreeVersion;
@@ -83,13 +84,16 @@ export const getTreeVersion = async (
   return parsePayload(snapshot.data());
 };
 
-export const getOrCreateDraft = async (treeId: string): Promise<TreeDraft> => {
+export const getOrCreateDraft = async (
+  treeId: string,
+  schemaId: SchemaId = defaultSchemaId,
+): Promise<TreeDraft> => {
   const draft = await getTreeVersion(treeId, "draft");
   if (draft) {
     return draft;
   }
 
-  const seed = createSeedTree(treeId);
+  const seed = createDefaultTree(treeId, schemaId);
 
   if (backendMode === "mock") {
     writeLocalTree(treeId, "draft", seed, "system");
