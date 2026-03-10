@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ACTA × Seed 論点整理</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f1e8;
+        --paper: #fffdf9;
+        --ink: #201a16;
+        --muted: #6b5d52;
+        --line: #dccfbe;
+        --teal: #2e6270;
+        --teal-soft: #dbecef;
+        --rust: #9b5a34;
+        --rust-soft: #f6e3d8;
+        --olive: #6d6a2a;
+        --olive-soft: #eeedcf;
+        --shadow: 0 18px 40px rgba(52, 39, 24, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top right, rgba(46, 98, 112, 0.12), transparent 24%),
+          radial-gradient(circle at left 12% top 18%, rgba(155, 90, 52, 0.1), transparent 20%),
+          linear-gradient(180deg, #ece3d6 0, var(--bg) 260px);
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        line-height: 1.75;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 32px));
+        margin: 24px auto 60px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 34px 34px 30px;
+      }
+
+      .section {
+        margin-top: 18px;
+        padding: 26px 28px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      p,
+      ul {
+        margin: 0;
+      }
+
+      h1,
+      h2 {
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+        line-height: 1.28;
+      }
+
+      h1 {
+        font-size: clamp(30px, 4vw, 46px);
+        margin-top: 12px;
+      }
+
+      h2 {
+        font-size: 25px;
+        margin-bottom: 14px;
+      }
+
+      h3 {
+        font-size: 20px;
+        line-height: 1.4;
+      }
+
+      h4 {
+        font-size: 14px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      p + p,
+      p + ul,
+      ul + p,
+      .stack > * + * {
+        margin-top: 10px;
+      }
+
+      ul {
+        padding-left: 1.2em;
+      }
+
+      li + li {
+        margin-top: 8px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--teal-soft);
+        color: var(--teal);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        margin-top: 14px;
+        max-width: 76ch;
+        color: #3b3028;
+        font-size: 1.04rem;
+      }
+
+      .meta {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 11px;
+        background: #fff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+
+      .card,
+      .callout,
+      .seed {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: #fff;
+      }
+
+      .card,
+      .callout {
+        padding: 18px;
+      }
+
+      .seed {
+        overflow: hidden;
+      }
+
+      .seed-head {
+        padding: 18px 20px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .seed-body {
+        padding: 18px 20px 20px;
+      }
+
+      .seed.question .seed-head {
+        background: linear-gradient(135deg, #eef7f8, #ffffff);
+      }
+
+      .seed.idea .seed-head {
+        background: linear-gradient(135deg, #fbf1ea, #ffffff);
+      }
+
+      .seed.anomaly .seed-head {
+        background: linear-gradient(135deg, #f6f6e8, #ffffff);
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .tag.question {
+        background: var(--teal-soft);
+        color: var(--teal);
+      }
+
+      .tag.idea {
+        background: var(--rust-soft);
+        color: var(--rust);
+      }
+
+      .tag.anomaly {
+        background: var(--olive-soft);
+        color: var(--olive);
+      }
+
+      .prompt-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .prompt-list li {
+        padding: 14px 0;
+        border-top: 1px solid #eee5d8;
+      }
+
+      .prompt-list li:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .prompt-title {
+        font-weight: 700;
+      }
+
+      .matrix {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 820px;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        vertical-align: top;
+        border-top: 1px solid var(--line);
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .callout {
+        background: linear-gradient(135deg, #fffaf4, #ffffff);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: #f5efe6;
+        font-size: 0.92em;
+      }
+
+      @media (max-width: 720px) {
+        .hero,
+        .section {
+          padding: 22px 18px;
+        }
+
+        .seed-head,
+        .seed-body {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero stack">
+        <div class="eyebrow">ACTA × Seed</div>
+        <h1>Seed ごとに ACTA で何を話すか</h1>
+        <p class="lead">
+          具体的な要素名や設問文を先に固めるのではなく、
+          まずは <strong>どの Seed で、どんな種類の話を立てるのが自然か</strong> を抽象レベルで整理するためのメモ。
+          Question / Idea / Anomaly の入り口ごとに、ACTA の観点をどう当てるかを並べている。
+        </p>
+        <div class="meta">
+          <span class="chip">抽象整理の段階</span>
+          <span class="chip">具体要素名は後回し</span>
+          <span class="chip">1 Seed あたり 3 論点</span>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>まず共通フレーム</h2>
+        <div class="grid three">
+          <article class="card stack">
+            <h4>1. 難所の特定</h4>
+            <p>
+              この Seed は、タスクや理解のどの難しさに向かっているのか。
+              どの局面で答えや説明が必要になるのかを定める。
+            </p>
+          </article>
+          <article class="card stack">
+            <h4>2. 熟練者の見方</h4>
+            <p>
+              熟練者はそこで何を見て、どんな兆候を手がかりにし、
+              何を重要だとみなしているのかを掘る。
+            </p>
+          </article>
+          <article class="card stack">
+            <h4>3. 難局での判断</h4>
+            <p>
+              条件が悪い場面、情報が不足する場面、例外的な場面で、
+              どう判断し、初心者はどこで外しやすいかを見る。
+            </p>
+          </article>
+        </div>
+        <div class="callout stack">
+          <p>
+            ACTA で言えば、これは大まかに
+            <code>Task Diagram → Knowledge Audit → Simulation Interview</code>
+            の順に対応する。
+          </p>
+          <p class="muted">
+            ただしここでは方法名そのものより、
+            「何を話題化するか」の骨格に寄せている。
+          </p>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>Seed 別の話の立て方</h2>
+        <div class="grid three">
+          <article class="seed question">
+            <div class="seed-head stack">
+              <span class="tag question">Question Seed</span>
+              <h3>答えるべきことを立てる入口</h3>
+              <p class="muted">
+                「なんでこうなるのか」「どこが分からないのか」から探究を始める。
+              </p>
+            </div>
+            <div class="seed-body">
+              <ul class="prompt-list">
+                <li>
+                  <div class="prompt-title">1. 何がまだ分かっていないのかを定める</div>
+                  <p>
+                    疑問の対象をぼかしたままにせず、
+                    どの局面で説明が必要なのか、何が未解明なのかを絞る。
+                  </p>
+                </li>
+                <li>
+                  <div class="prompt-title">2. その問いに答える人は何を見ているのかを聞く</div>
+                  <p>
+                    熟練者が注目する手がかり、全体像の取り方、
+                    見落としにくい小さな兆候を引き出す。
+                  </p>
+                </li>
+                <li>
+                  <div class="prompt-title">3. その問いが試される厳しい場面を聞く</div>
+                  <p>
+                    情報不足、時間制約、条件悪化のような局面で、
+                    どう判断するかと初心者の外しどころを整理する。
+                  </p>
+                </li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="seed idea">
+            <div class="seed-head stack">
+              <span class="tag idea">Idea Seed</span>
+              <h3>説明の筋を立てる入口</h3>
+              <p class="muted">
+                「こういう仕組みかも」「こう考えると説明できるかも」から始める。
+              </p>
+            </div>
+            <div class="seed-body">
+              <ul class="prompt-list">
+                <li>
+                  <div class="prompt-title">1. このアイデアは何を説明したいのかを定める</div>
+                  <p>
+                    思いつきを、その仕事や現象のどの難所に効く仮説なのかへ変える。
+                  </p>
+                </li>
+                <li>
+                  <div class="prompt-title">2. 正しいなら何が見えるはずかを聞く</div>
+                  <p>
+                    熟練者の予測、見分け方、段取りの工夫として、
+                    どんな振る舞いが現れるはずかを掘る。
+                  </p>
+                </li>
+                <li>
+                  <div class="prompt-title">3. どこで崩れるかを聞く</div>
+                  <p>
+                    例外条件、通用しない状況、別説明が必要になる境目を明らかにする。
+                  </p>
+                </li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="seed anomaly">
+            <div class="seed-head stack">
+              <span class="tag anomaly">Anomaly Seed</span>
+              <h3>崩れた点から立て直す入口</h3>
+              <p class="muted">
+                「ここだけおかしい」「説明が合わない」から始める。
+              </p>
+            </div>
+            <div class="seed-body">
+              <ul class="prompt-list">
+                <li>
+                  <div class="prompt-title">1. 何がいつもと違って見えたのかを言語化する</div>
+                  <p>
+                    単なるミスやノイズではなく、
+                    どのズレが引っかかりになったのかを丁寧に掴む。
+                  </p>
+                </li>
+                <li>
+                  <div class="prompt-title">2. 熟練者はそのズレをどう検知するのかを聞く</div>
+                  <p>
+                    小さな兆候、典型との比較、異常の早期発見のコツを引き出す。
+                  </p>
+                </li>
+                <li>
+                  <div class="prompt-title">3. ズレを見つけたあとどう立て直すかを聞く</div>
+                  <p>
+                    原因の切り分け、優先順位の付け方、
+                    初心者が誤反応しやすい点を整理する。
+                  </p>
+                </li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>一行で言い換えると</h2>
+        <div class="matrix">
+          <table>
+            <thead>
+              <tr>
+                <th>Seed</th>
+                <th>抽象的な役割</th>
+                <th>話の中心</th>
+                <th>ACTA 的に見たいもの</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Question</strong></td>
+                <td>答えるべきことを立てる</td>
+                <td>未解明点の明確化</td>
+                <td>何を見れば答えに近づくのか</td>
+              </tr>
+              <tr>
+                <td><strong>Idea</strong></td>
+                <td>説明の筋を立てる</td>
+                <td>仮説の射程と限界</td>
+                <td>正しいなら何が観察されるはずか</td>
+              </tr>
+              <tr>
+                <td><strong>Anomaly</strong></td>
+                <td>崩れた点から立て直す</td>
+                <td>ズレの意味づけ</td>
+                <td>異常検知と再判断のしかた</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>次に具体化するとしたら</h2>
+        <div class="grid two">
+          <article class="card stack">
+            <h3>設問化の方向</h3>
+            <p>
+              次の段階では、この抽象論点をそれぞれ
+              「専門家にどう聞くか」という質問テンプレートに落とす。
+            </p>
+            <p class="muted">
+              例: Question なら「どの局面でその問いが重要になるか」、
+              Anomaly なら「いつもと違うと気づく最初の兆候は何か」。
+            </p>
+          </article>
+          <article class="card stack">
+            <h3>成果物化の方向</h3>
+            <p>
+              さらに先では、各 Seed の論点を
+              <strong>難しい認知要素 / なぜ難しいか / よくある誤り / 手がかりと戦略</strong>
+              に落としていくと ACTA の table に接続しやすい。
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
