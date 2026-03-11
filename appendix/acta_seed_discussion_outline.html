@@ -3,22 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ACTA × Seed 論点整理</title>
+    <title>ACTA × Seed 再整理メモ</title>
     <style>
       :root {
         color-scheme: light;
-        --bg: #f5f1e8;
+        --bg: #f4efe7;
         --paper: #fffdf9;
         --ink: #201a16;
-        --muted: #6b5d52;
-        --line: #dccfbe;
-        --teal: #2e6270;
-        --teal-soft: #dbecef;
-        --rust: #9b5a34;
-        --rust-soft: #f6e3d8;
-        --olive: #6d6a2a;
-        --olive-soft: #eeedcf;
-        --shadow: 0 18px 40px rgba(52, 39, 24, 0.08);
+        --muted: #6a5c51;
+        --line: #d9ccbb;
+        --teal: #2d6573;
+        --teal-soft: #dcedf0;
+        --rust: #9a5a35;
+        --rust-soft: #f5e4da;
+        --olive: #6f6c2b;
+        --olive-soft: #efefcf;
+        --gold: #8a6c27;
+        --gold-soft: #f3e8c8;
+        --shadow: 0 18px 44px rgba(48, 37, 22, 0.08);
       }
 
       * {
@@ -29,15 +31,23 @@
         margin: 0;
         color: var(--ink);
         background:
-          radial-gradient(circle at top right, rgba(46, 98, 112, 0.12), transparent 24%),
-          radial-gradient(circle at left 12% top 18%, rgba(155, 90, 52, 0.1), transparent 20%),
-          linear-gradient(180deg, #ece3d6 0, var(--bg) 260px);
+          radial-gradient(circle at right top, rgba(45, 101, 115, 0.1), transparent 24%),
+          radial-gradient(circle at left 10% top 18%, rgba(154, 90, 53, 0.08), transparent 22%),
+          linear-gradient(180deg, #ece3d7 0, var(--bg) 280px);
         font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
         line-height: 1.75;
       }
 
+      a {
+        color: var(--teal);
+      }
+
+      a:hover {
+        color: #1e4b55;
+      }
+
       .page {
-        width: min(1120px, calc(100% - 32px));
+        width: min(1140px, calc(100% - 32px));
         margin: 24px auto 60px;
       }
 
@@ -63,7 +73,9 @@
       h3,
       h4,
       p,
-      ul {
+      ul,
+      ol,
+      table {
         margin: 0;
       }
 
@@ -74,13 +86,13 @@
       }
 
       h1 {
-        font-size: clamp(30px, 4vw, 46px);
         margin-top: 12px;
+        font-size: clamp(30px, 4vw, 46px);
       }
 
       h2 {
-        font-size: 25px;
         margin-bottom: 14px;
+        font-size: 25px;
       }
 
       h3 {
@@ -97,13 +109,16 @@
 
       p + p,
       p + ul,
+      p + ol,
       ul + p,
+      ol + p,
       .stack > * + * {
         margin-top: 10px;
       }
 
-      ul {
-        padding-left: 1.2em;
+      ul,
+      ol {
+        padding-left: 1.25em;
       }
 
       li + li {
@@ -125,8 +140,8 @@
 
       .lead {
         margin-top: 14px;
-        max-width: 76ch;
-        color: #3b3028;
+        max-width: 78ch;
+        color: #3e3129;
         font-size: 1.04rem;
       }
 
@@ -137,15 +152,41 @@
         gap: 8px;
       }
 
-      .chip {
+      .chip,
+      .tag {
         display: inline-flex;
         align-items: center;
-        border: 1px solid var(--line);
         border-radius: 999px;
         padding: 6px 11px;
-        background: #fff;
         font-size: 12px;
+        font-weight: 700;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        background: #fff;
         color: var(--muted);
+        font-weight: 500;
+      }
+
+      .tag.question {
+        background: var(--teal-soft);
+        color: var(--teal);
+      }
+
+      .tag.idea {
+        background: var(--rust-soft);
+        color: var(--rust);
+      }
+
+      .tag.anomaly {
+        background: var(--olive-soft);
+        color: var(--olive);
+      }
+
+      .tag.theory {
+        background: var(--gold-soft);
+        color: var(--gold);
       }
 
       .grid {
@@ -154,19 +195,23 @@
       }
 
       .grid.two {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
       }
 
       .grid.three {
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       }
 
+      .grid.four {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
       .card,
       .callout,
       .seed {
+        background: #fff;
         border: 1px solid var(--line);
         border-radius: 20px;
-        background: #fff;
       }
 
       .card,
@@ -192,35 +237,59 @@
       }
 
       .seed.idea .seed-head {
-        background: linear-gradient(135deg, #fbf1ea, #ffffff);
+        background: linear-gradient(135deg, #fbf0e8, #ffffff);
       }
 
       .seed.anomaly .seed-head {
-        background: linear-gradient(135deg, #f6f6e8, #ffffff);
+        background: linear-gradient(135deg, #f6f6e7, #ffffff);
       }
 
-      .tag {
-        display: inline-flex;
-        align-items: center;
-        padding: 5px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 700;
+      .callout.note {
+        background: linear-gradient(135deg, #fbfaf3, #ffffff);
       }
 
-      .tag.question {
+      .callout.warn {
+        background: linear-gradient(135deg, #fff7f3, #ffffff);
+      }
+
+      .callout.primary {
+        background: linear-gradient(135deg, #f6fbfd, #ffffff);
+      }
+
+      .quote {
+        padding: 14px 16px;
+        border-left: 4px solid var(--teal);
+        border-radius: 10px;
+        background: #f7fbfc;
+        color: #3a322c;
+      }
+
+      .flow {
+        display: grid;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .num {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
         background: var(--teal-soft);
         color: var(--teal);
-      }
-
-      .tag.idea {
-        background: var(--rust-soft);
-        color: var(--rust);
-      }
-
-      .tag.anomaly {
-        background: var(--olive-soft);
-        color: var(--olive);
+        font-weight: 700;
       }
 
       .prompt-list {
@@ -230,12 +299,12 @@
 
       .prompt-list li {
         padding: 14px 0;
-        border-top: 1px solid #eee5d8;
+        border-top: 1px solid #eee4d8;
       }
 
       .prompt-list li:first-child {
-        border-top: 0;
         padding-top: 0;
+        border-top: 0;
       }
 
       .prompt-title {
@@ -248,17 +317,17 @@
 
       table {
         width: 100%;
+        min-width: 860px;
         border-collapse: collapse;
-        min-width: 820px;
         font-size: 14px;
       }
 
       th,
       td {
         padding: 12px;
+        border-top: 1px solid var(--line);
         text-align: left;
         vertical-align: top;
-        border-top: 1px solid var(--line);
       }
 
       th {
@@ -268,8 +337,19 @@
         text-transform: uppercase;
       }
 
-      .callout {
-        background: linear-gradient(135deg, #fffaf4, #ffffff);
+      .refs {
+        list-style: none;
+        padding: 0;
+      }
+
+      .refs li {
+        padding: 12px 0;
+        border-top: 1px solid #ece3d8;
+      }
+
+      .refs li:first-child {
+        border-top: 0;
+        padding-top: 0;
       }
 
       .muted {
@@ -294,6 +374,10 @@
           padding-left: 16px;
           padding-right: 16px;
         }
+
+        .step {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -301,89 +385,415 @@
     <main class="page">
       <section class="hero stack">
         <div class="eyebrow">ACTA × Seed</div>
-        <h1>Seed ごとに ACTA で何を話すか</h1>
+        <h1>Question Seed をどう立ち上げるかを中心にした再整理</h1>
         <p class="lead">
-          具体的な要素名や設問文を先に固めるのではなく、
-          まずは <strong>どの Seed で、どんな種類の話を立てるのが自然か</strong> を抽象レベルで整理するためのメモ。
-          Question / Idea / Anomaly の入り口ごとに、ACTA の観点をどう当てるかを並べている。
+          以前の整理では、<code>Question Seed</code> をやや早い段階で
+          「何がわからないか」を言わせる設計として書いていた。
+          ただ、実際には作業者は最初から自分の不明点を明瞭に言えないことが多い。
+          ここではその前提を踏まえ、
+          <strong>Seed は探究の発火点であり、<code>problem</code> はその後に明確化される</strong>
+          という設計へ寄せて、ACTA や暗黙知抽出系の考え方も含めて再整理する。
         </p>
         <div class="meta">
-          <span class="chip">抽象整理の段階</span>
-          <span class="chip">具体要素名は後回し</span>
-          <span class="chip">1 Seed あたり 3 論点</span>
+          <span class="chip">Question Seed を worker-facing に再定義</span>
+          <span class="chip">problem は後続で立ち上がる</span>
+          <span class="chip">具体場面からズレを起こす流れを採用</span>
         </div>
       </section>
 
       <section class="section stack">
-        <h2>まず共通フレーム</h2>
+        <h2>結論の先取り</h2>
+        <div class="quote">
+          <strong>Question Seed で最初に求めるべきなのは、「どこがわからないか」ではなく、
+          「どの場面が引っかかるか」「何を予想していたか」「どこで予想が崩れたか」</strong>
+          である。そこから <code>problem</code> を立ち上げ、次に
+          <code>working_theory</code> と <code>evidence</code> へ進む。
+        </div>
         <div class="grid three">
           <article class="card stack">
-            <h4>1. 難所の特定</h4>
+            <h4>Seed</h4>
+            <p>まだ粗い引っかかり、問い、思いつき、違和感の提出。</p>
+          </article>
+          <article class="card stack">
+            <h4>Problem</h4>
+            <p>この Seed で何を説明したいのかを後から明確化したもの。</p>
+          </article>
+          <article class="card stack">
+            <h4>Theory / Evidence</h4>
+            <p>どの説明で行くか、何を根拠に確かめるかを次に立てる。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>なぜ「どこがわからない？」から始めない方がよいのか</h2>
+        <div class="grid three">
+          <article class="card stack">
+            <h3>1. メタ認知の前提が高すぎる</h3>
             <p>
-              この Seed は、タスクや理解のどの難しさに向かっているのか。
-              どの局面で答えや説明が必要になるのかを定める。
+              作業者は困っていても、その困り方をまだ分解できていないことが多い。
+              いきなり不明点の自己診断を求めると、空振りか一般論になりやすい。
             </p>
           </article>
           <article class="card stack">
-            <h4>2. 熟練者の見方</h4>
+            <h3>2. 身体的・状況的な違和感は言語化前に現れる</h3>
             <p>
-              熟練者はそこで何を見て、どんな兆候を手がかりにし、
-              何を重要だとみなしているのかを掘る。
+              とくに技能学習や現場判断では、
+              「何か違う」「ここで止まる」「この感じが変だ」が先に来る。
+              不明点はその後で言葉になる。
             </p>
           </article>
           <article class="card stack">
-            <h4>3. 難局での判断</h4>
+            <h3>3. 抽象質問は文脈を失いやすい</h3>
             <p>
-              条件が悪い場面、情報が不足する場面、例外的な場面で、
-              どう判断し、初心者はどこで外しやすいかを見る。
+              具体場面を離れると、手がかり、順序、期待、比較対象が消えやすい。
+              その結果、問いが深まる前に平板な説明へ閉じてしまう。
             </p>
           </article>
         </div>
-        <div class="callout stack">
+        <div class="callout warn stack">
           <p>
-            ACTA で言えば、これは大まかに
-            <code>Task Diagram → Knowledge Audit → Simulation Interview</code>
-            の順に対応する。
-          </p>
-          <p class="muted">
-            ただしここでは方法名そのものより、
-            「何を話題化するか」の骨格に寄せている。
+            したがって、<code>Question Seed</code> は
+            <strong>完成した質問文を回収するノードではなく、再訪したい一場面を提出するノード</strong>
+            と読む方が自然である。
           </p>
         </div>
       </section>
 
       <section class="section stack">
-        <h2>Seed 別の話の立て方</h2>
+        <h2>理論的に見ると、問いはどう立ち上がるか</h2>
+        <div class="grid two">
+          <article class="card stack">
+            <span class="tag theory">Progressive Inquiry</span>
+            <h3>Seed が先、problem は後</h3>
+            <p>
+              このプロダクトの設計書でも、
+              <code>seed</code> は探究の発火点、
+              <code>problem</code> は「この seed で何を説明したいのか」の明確化とされている。
+            </p>
+            <p class="muted">
+              つまり、問いは最初から完成している前提ではない。
+            </p>
+          </article>
+          <article class="card stack">
+            <span class="tag theory">ACTA / CTA</span>
+            <h3>一般論ではなく、難しい局面へ戻す</h3>
+            <p>
+              ACTA はまずタスクの中の難所に当たりを付け、
+              その後に具体例ベースで手がかり、判断、初心者の失敗を掘る。
+              先に詳細な自己説明を求める設計ではない。
+            </p>
+          </article>
+          <article class="card stack">
+            <span class="tag theory">Cognitive Apprenticeship</span>
+            <h3>見える化してから articulation へ行く</h3>
+            <p>
+              認知的徒弟制では、まず expert thinking を visible にし、
+              modeling, coaching, scaffolding を通じてから articulation や reflection へ進む。
+            </p>
+          </article>
+          <article class="card stack">
+            <span class="tag theory">Decoding / Bottleneck</span>
+            <h3>先に bottleneck を見つける</h3>
+            <p>
+              学習者の詰まりを先に捉え、
+              そのあとで専門家側の見えない操作を外化する流れが強い。
+              問いは、詰まりの指摘から生成される。
+            </p>
+          </article>
+        </div>
+        <div class="callout note stack">
+          <p>
+            複数理論を横断すると、
+            <strong>問いの洗い出しは「内省で回収する」より「具体場面を再生し、期待と実際のズレを外化してから命名する」方が筋がよい</strong>
+            と言える。
+          </p>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>Question Seed の推奨フロー</h2>
+        <p>
+          <code>Question Seed</code> では、最初から完成した疑問を書かせるのではなく、
+          次のように一段ずつ立ち上げる。
+        </p>
+        <div class="flow">
+          <article class="step">
+            <div class="num">1</div>
+            <div class="stack">
+              <h3>場面を選ぶ</h3>
+              <p>
+                まず、作業者が「もう一度見たい」「ここで止まりたい」と感じる
+                具体的な一場面を選ぶ。
+              </p>
+              <p class="muted">ここではまだ質問文にしなくてよい。</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">2</div>
+            <div class="stack">
+              <h3>予想を出す</h3>
+              <p>
+                その場面で何が起きると思っていたか、
+                何を見るつもりだったか、どう進むと予期していたかを出す。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">3</div>
+            <div class="stack">
+              <h3>実際とのズレを出す</h3>
+              <p>
+                予想と実際の差、止まった瞬間、気になった挙動、
+                違和感のある箇所を外化する。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">4</div>
+            <div class="stack">
+              <h3>problem を立てる</h3>
+              <p>
+                そのズレから、
+                「つまりこの Seed で何を説明したいのか」を絞り込んで
+                <code>problem</code> にする。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">5</div>
+            <div class="stack">
+              <h3>working theory と evidence に進む</h3>
+              <p>
+                ここで初めて仮説を立て、
+                何を比較し、どんな根拠を取りに行くかを設計する。
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>Question Seed で最初に投げるとよい問いの型</h2>
+        <div class="grid two">
+          <article class="card stack">
+            <h3>よい入口</h3>
+            <ul>
+              <li>どの場面をもう一度見たいか</li>
+              <li>そこで何が起きると思っていたか</li>
+              <li>実際にはどこで予想が崩れたか</li>
+              <li>どの瞬間を止めて見たいか</li>
+              <li>何を比べると分かりそうか</li>
+            </ul>
+          </article>
+          <article class="card stack">
+            <h3>早すぎる入口</h3>
+            <ul>
+              <li>何がわからないのか説明してください</li>
+              <li>この現象の原因は何ですか</li>
+              <li>正しい説明を書いてください</li>
+              <li>どの知識が足りないですか</li>
+              <li>問題点を一般化してください</li>
+            </ul>
+          </article>
+        </div>
+        <div class="callout primary stack">
+          <p>
+            重要なのは、<strong>Question Seed は答えを言わせる prompt ではなく、
+            注意を向け直させる prompt である</strong>ことだ。
+          </p>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>React Flow でまとめるなら</h2>
+        <p>
+          いまの話をそのまま React Flow に載せるなら、
+          <strong>Question Seed から 3 本に分ける</strong>のがよい。
+          ただし本当に重要なのは、
+          3 本の下にぶら下がる深掘り観点がかなり共通だという点である。
+        </p>
+        <div class="flow">
+          <article class="step">
+            <div class="num">1</div>
+            <div class="stack">
+              <h3>Question Seed</h3>
+              <p>再訪したい場面、止まった瞬間、気になる挙動を置く。</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">2</div>
+            <div class="stack">
+              <h3>3 本の深掘り枝</h3>
+              <p>
+                <code>Situation</code>, <code>Expectation</code>, <code>Actual</code>
+                の 3 枝に分けて、それぞれを同じ観点で掘る。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">3</div>
+            <div class="stack">
+              <h3>Mismatch</h3>
+              <p>
+                Expectation と Actual の差、および Situation の見落としを
+                差分としてまとめる。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">4</div>
+            <div class="stack">
+              <h3>Problem</h3>
+              <p>
+                その差分のうち、何を説明対象にするかを絞る。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">5</div>
+            <div class="stack">
+              <h3>Working Theory / Evidence</h3>
+              <p>
+                そこから仮説と検証へ進む。
+              </p>
+            </div>
+          </article>
+        </div>
+        <div class="callout primary stack">
+          <p>
+            ポイントは、<strong>Situation / Expectation / Actual は別々の意味を持つが、
+            その中で見る観点はかなり共通である</strong>ことだ。
+          </p>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>共通プローブ軸として持つとよさそうなもの</h2>
+        <p>
+          「どういう処理の時だったか」「丸棒の材料は何だったか」のような深掘りは、
+          branch ごとに別々の質問群を持つより、
+          <strong>共通プローブ軸</strong>として持った方が整理しやすい。
+        </p>
+        <div class="matrix">
+          <table>
+            <thead>
+              <tr>
+                <th>共通プローブ軸</th>
+                <th>見るもの</th>
+                <th>例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>工程 / タイミング</strong></td>
+                <td>どの処理、どの局面、どの順番だったか</td>
+                <td>どの工程で止まったか、切り返し前か後か</td>
+              </tr>
+              <tr>
+                <td><strong>対象 / 材料</strong></td>
+                <td>何に対して作業していたか、その対象の性質は何か</td>
+                <td>丸棒の材質、太さ、状態、個体差</td>
+              </tr>
+              <tr>
+                <td><strong>道具 / 機械 / 介在物</strong></td>
+                <td>何を使っていたか、どの設定・接触条件だったか</td>
+                <td>治具、機械設定、刃、補助具</td>
+              </tr>
+              <tr>
+                <td><strong>身体 / 操作</strong></td>
+                <td>どんな姿勢、力加減、手順、身体感覚だったか</td>
+                <td>押し方、力の入り方、手の位置、抵抗感</td>
+              </tr>
+              <tr>
+                <td><strong>環境 / 制約</strong></td>
+                <td>周囲条件や制約は何だったか</td>
+                <td>時間制約、視界、温度、周囲の邪魔、騒音</td>
+              </tr>
+              <tr>
+                <td><strong>判断基準 / 良否の見立て</strong></td>
+                <td>何をもって良い・危ない・次へ進めると見ていたか</td>
+                <td>どの見え方なら OK と思っていたか</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout note stack">
+          <p>
+            この軸は Question Seed 専用というより、
+            <strong>Situation / Expectation / Actual の 3 枝すべてに共通して適用するための深掘りレンズ</strong>
+            として使うのがよい。
+          </p>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>React Flow 上のまとめ方の勘所</h2>
+        <div class="grid two">
+          <article class="card stack">
+            <h3>保存するノード</h3>
+            <ul>
+              <li><code>Question Seed</code></li>
+              <li><code>Situation</code></li>
+              <li><code>Expectation</code></li>
+              <li><code>Actual</code></li>
+              <li><code>Mismatch</code></li>
+              <li><code>Problem</code></li>
+              <li><code>Working Theory</code></li>
+              <li><code>Evidence</code></li>
+            </ul>
+          </article>
+          <article class="card stack">
+            <h3>別 node kind にしない方がよさそうなもの</h3>
+            <ul>
+              <li>工程 / 材料 / 身体 / 環境などの共通プローブ軸</li>
+              <li>それぞれの軸に対する質問テンプレ</li>
+              <li>入力補助のための小さな確認項目</li>
+            </ul>
+          </article>
+        </div>
+        <div class="callout warn stack">
+          <p>
+            共通プローブ軸まで node kind にすると、
+            スキーマが task 依存の用語で膨らみやすい。
+            React Flow では <strong>枝の中の補助 UI / node 内の structured note / side panel のテンプレ</strong>
+            として持つ方がきれいである。
+          </p>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>Seed 別に何を話すか</h2>
         <div class="grid three">
           <article class="seed question">
             <div class="seed-head stack">
               <span class="tag question">Question Seed</span>
-              <h3>答えるべきことを立てる入口</h3>
+              <h3>引っかかりから問いを立ち上げる</h3>
               <p class="muted">
-                「なんでこうなるのか」「どこが分からないのか」から探究を始める。
+                作業者に、再訪したい場面と予想のズレを出させる入口。
               </p>
             </div>
             <div class="seed-body">
               <ul class="prompt-list">
                 <li>
-                  <div class="prompt-title">1. 何がまだ分かっていないのかを定める</div>
+                  <div class="prompt-title">1. どの場面を problem 化したいかを見つける</div>
                   <p>
-                    疑問の対象をぼかしたままにせず、
-                    どの局面で説明が必要なのか、何が未解明なのかを絞る。
+                    まずは「何がわからないか」ではなく、
+                    「どこで止まるか」「どこを見直したいか」を出す。
                   </p>
                 </li>
                 <li>
-                  <div class="prompt-title">2. その問いに答える人は何を見ているのかを聞く</div>
+                  <div class="prompt-title">2. 予想と実際の差を外化する</div>
                   <p>
-                    熟練者が注目する手がかり、全体像の取り方、
-                    見落としにくい小さな兆候を引き出す。
+                    何を期待していたか、何が違っていたかを通じて、
+                    問いの輪郭を少しずつ作る。
                   </p>
                 </li>
                 <li>
-                  <div class="prompt-title">3. その問いが試される厳しい場面を聞く</div>
+                  <div class="prompt-title">3. そこから problem と theory へつなぐ</div>
                   <p>
-                    情報不足、時間制約、条件悪化のような局面で、
-                    どう判断するかと初心者の外しどころを整理する。
+                    引っかかりを説明対象に変え、
+                    後続の <code>working_theory</code> と <code>evidence</code> を立てられるようにする。
                   </p>
                 </li>
               </ul>
@@ -393,9 +803,9 @@
           <article class="seed idea">
             <div class="seed-head stack">
               <span class="tag idea">Idea Seed</span>
-              <h3>説明の筋を立てる入口</h3>
+              <h3>思いついた説明の筋を立てる</h3>
               <p class="muted">
-                「こういう仕組みかも」「こう考えると説明できるかも」から始める。
+                「こういう仕組みかも」という仮の見立てから始める入口。
               </p>
             </div>
             <div class="seed-body">
@@ -403,20 +813,22 @@
                 <li>
                   <div class="prompt-title">1. このアイデアは何を説明したいのかを定める</div>
                   <p>
-                    思いつきを、その仕事や現象のどの難所に効く仮説なのかへ変える。
+                    仮説の射程を定め、
+                    どの現象・どの判断・どの変化に効く説明なのかを明確にする。
                   </p>
                 </li>
                 <li>
-                  <div class="prompt-title">2. 正しいなら何が見えるはずかを聞く</div>
+                  <div class="prompt-title">2. 正しいなら何が観察されるはずかを出す</div>
                   <p>
-                    熟練者の予測、見分け方、段取りの工夫として、
-                    どんな振る舞いが現れるはずかを掘る。
+                    予測される手がかり、見え方、段取りの違いを立て、
+                    theory を観察可能な形にする。
                   </p>
                 </li>
                 <li>
-                  <div class="prompt-title">3. どこで崩れるかを聞く</div>
+                  <div class="prompt-title">3. 崩れる境界を探す</div>
                   <p>
-                    例外条件、通用しない状況、別説明が必要になる境目を明らかにする。
+                    例外条件や通用しない場面を探し、
+                    <code>mismatch</code> や比較へ接続する。
                   </p>
                 </li>
               </ul>
@@ -426,31 +838,31 @@
           <article class="seed anomaly">
             <div class="seed-head stack">
               <span class="tag anomaly">Anomaly Seed</span>
-              <h3>崩れた点から立て直す入口</h3>
+              <h3>ズレから立て直しを始める</h3>
               <p class="muted">
-                「ここだけおかしい」「説明が合わない」から始める。
+                「ここだけおかしい」「説明が合わない」から始まる入口。
               </p>
             </div>
             <div class="seed-body">
               <ul class="prompt-list">
                 <li>
-                  <div class="prompt-title">1. 何がいつもと違って見えたのかを言語化する</div>
+                  <div class="prompt-title">1. 何が典型から外れていたかを掴む</div>
                   <p>
-                    単なるミスやノイズではなく、
-                    どのズレが引っかかりになったのかを丁寧に掴む。
+                    単なる失敗ではなく、
+                    何が通常パターンと違っていたのかを丁寧に言語化する。
                   </p>
                 </li>
                 <li>
-                  <div class="prompt-title">2. 熟練者はそのズレをどう検知するのかを聞く</div>
+                  <div class="prompt-title">2. そのズレをどう検知したかを出す</div>
                   <p>
-                    小さな兆候、典型との比較、異常の早期発見のコツを引き出す。
+                    小さな兆候、比較対象、身体感覚、早期発見の手がかりを拾う。
                   </p>
                 </li>
                 <li>
-                  <div class="prompt-title">3. ズレを見つけたあとどう立て直すかを聞く</div>
+                  <div class="prompt-title">3. 検知後の立て直し方を整理する</div>
                   <p>
-                    原因の切り分け、優先順位の付け方、
-                    初心者が誤反応しやすい点を整理する。
+                    原因の切り分け、優先順位、再判断の手順を整理し、
+                    theory の更新へつなぐ。
                   </p>
                 </li>
               </ul>
@@ -460,35 +872,41 @@
       </section>
 
       <section class="section stack">
-        <h2>一行で言い換えると</h2>
+        <h2>ノード設計に落とすと</h2>
         <div class="matrix">
           <table>
             <thead>
               <tr>
-                <th>Seed</th>
-                <th>抽象的な役割</th>
-                <th>話の中心</th>
-                <th>ACTA 的に見たいもの</th>
+                <th>段階</th>
+                <th>ここでやること</th>
+                <th>まだ求めないこと</th>
+                <th>次に進むノード</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>Question</strong></td>
-                <td>答えるべきことを立てる</td>
-                <td>未解明点の明確化</td>
-                <td>何を見れば答えに近づくのか</td>
+                <td><strong>Question Seed</strong></td>
+                <td>再訪したい場面、予想、ズレ、気になる箇所を出す</td>
+                <td>完成した原因説明や自己診断</td>
+                <td><code>problem</code></td>
               </tr>
               <tr>
-                <td><strong>Idea</strong></td>
-                <td>説明の筋を立てる</td>
-                <td>仮説の射程と限界</td>
-                <td>正しいなら何が観察されるはずか</td>
+                <td><strong>Problem</strong></td>
+                <td>この Seed で何を説明したいのかを明確にする</td>
+                <td>唯一の正解</td>
+                <td><code>working_theory</code></td>
               </tr>
               <tr>
-                <td><strong>Anomaly</strong></td>
-                <td>崩れた点から立て直す</td>
-                <td>ズレの意味づけ</td>
-                <td>異常検知と再判断のしかた</td>
+                <td><strong>Working Theory</strong></td>
+                <td>現時点の説明を立てる</td>
+                <td>十分な確証があること</td>
+                <td><code>mismatch</code>, <code>evidence</code></td>
+              </tr>
+              <tr>
+                <td><strong>Anomaly Seed</strong></td>
+                <td>典型から外れた箇所を先に出す</td>
+                <td>最初から一般法則にまとめること</td>
+                <td><code>working_theory</code>, <code>problem</code></td>
               </tr>
             </tbody>
           </table>
@@ -496,28 +914,25 @@
       </section>
 
       <section class="section stack">
-        <h2>次に具体化するとしたら</h2>
-        <div class="grid two">
-          <article class="card stack">
-            <h3>設問化の方向</h3>
-            <p>
-              次の段階では、この抽象論点をそれぞれ
-              「専門家にどう聞くか」という質問テンプレートに落とす。
-            </p>
-            <p class="muted">
-              例: Question なら「どの局面でその問いが重要になるか」、
-              Anomaly なら「いつもと違うと気づく最初の兆候は何か」。
-            </p>
-          </article>
-          <article class="card stack">
-            <h3>成果物化の方向</h3>
-            <p>
-              さらに先では、各 Seed の論点を
-              <strong>難しい認知要素 / なぜ難しいか / よくある誤り / 手がかりと戦略</strong>
-              に落としていくと ACTA の table に接続しやすい。
-            </p>
-          </article>
-        </div>
+        <h2>参考にした内部資料</h2>
+        <ul class="refs">
+          <li>
+            <strong><a href="../docs/progressive_inquiry_tree_design.html">Progressive Inquiry Tree 設計書</a></strong><br />
+            Seed を探究の発火点、problem をその後の明確化として置く基礎設計。
+          </li>
+          <li>
+            <strong><a href="./acta_paper_explainer.html">ACTA 論文解説</a></strong><br />
+            Task Diagram, Knowledge Audit, Simulation Interview からなる、難所起点の掘り方。
+          </li>
+          <li>
+            <strong><a href="./problem_working_theory_gap_contrast_survey.html">Seed / Problem / Working Theory / Gap / Contrast ミニサーベイ</a></strong><br />
+            Question-first, Idea-first, Anomaly-first を分けて読むための補助線。
+          </li>
+          <li>
+            <strong><a href="./method_name.html">方法名サーベイ</a></strong><br />
+            Decoding the Disciplines, Cognitive Apprenticeship, KLI などの位置づけ。
+          </li>
+        </ul>
       </section>
     </main>
   </body>

@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Probe Root Branch Design</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f3efe8;
+        --paper: #fffdf9;
+        --ink: #201b17;
+        --muted: #6a5d53;
+        --line: #dccfc0;
+        --teal: #2e6370;
+        --teal-soft: #dcebef;
+        --rust: #9f5c36;
+        --rust-soft: #f7e4d8;
+        --olive: #6c6a2d;
+        --olive-soft: #efefcf;
+        --violet: #6a5a86;
+        --violet-soft: #ece8f7;
+        --shadow: 0 18px 42px rgba(49, 39, 25, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at right top, rgba(46, 99, 112, 0.1), transparent 24%),
+          radial-gradient(circle at left 10% top 16%, rgba(159, 92, 54, 0.08), transparent 22%),
+          linear-gradient(180deg, #ece3d7 0, var(--bg) 280px);
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        line-height: 1.72;
+      }
+
+      a {
+        color: var(--teal);
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 24px auto 60px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 34px 34px 30px;
+      }
+
+      .section {
+        margin-top: 18px;
+        padding: 26px 28px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      p,
+      ul,
+      ol,
+      table {
+        margin: 0;
+      }
+
+      h1,
+      h2 {
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+        line-height: 1.28;
+      }
+
+      h1 {
+        margin-top: 12px;
+        font-size: clamp(30px, 4vw, 46px);
+      }
+
+      h2 {
+        margin-bottom: 14px;
+        font-size: 25px;
+      }
+
+      h3 {
+        font-size: 19px;
+        line-height: 1.4;
+      }
+
+      h4 {
+        font-size: 14px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      p + p,
+      p + ul,
+      p + ol,
+      ul + p,
+      ol + p,
+      .stack > * + * {
+        margin-top: 10px;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25em;
+      }
+
+      li + li {
+        margin-top: 8px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--teal-soft);
+        color: var(--teal);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        margin-top: 14px;
+        max-width: 78ch;
+        color: #3d3129;
+        font-size: 1.04rem;
+      }
+
+      .meta {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip,
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 11px;
+        font-size: 12px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--muted);
+      }
+
+      .tag {
+        font-weight: 700;
+      }
+
+      .tag.process {
+        background: var(--teal-soft);
+        color: var(--teal);
+      }
+
+      .tag.material {
+        background: var(--rust-soft);
+        color: var(--rust);
+      }
+
+      .tag.body {
+        background: var(--olive-soft);
+        color: var(--olive);
+      }
+
+      .tag.shared {
+        background: var(--violet-soft);
+        color: var(--violet);
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+
+      .grid.six {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card,
+      .callout,
+      .probe {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+      }
+
+      .card,
+      .callout {
+        padding: 18px;
+      }
+
+      .probe {
+        overflow: hidden;
+      }
+
+      .probe-head {
+        padding: 18px 20px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .probe-body {
+        padding: 18px 20px 20px;
+      }
+
+      .probe.process .probe-head {
+        background: linear-gradient(135deg, #eef7f8, #ffffff);
+      }
+
+      .probe.material .probe-head {
+        background: linear-gradient(135deg, #fbf0e8, #ffffff);
+      }
+
+      .probe.body .probe-head {
+        background: linear-gradient(135deg, #f7f7e9, #ffffff);
+      }
+
+      .callout.note {
+        background: linear-gradient(135deg, #faf8ff, #ffffff);
+      }
+
+      .callout.primary {
+        background: linear-gradient(135deg, #f6fbfd, #ffffff);
+      }
+
+      .quote {
+        padding: 14px 16px;
+        border-left: 4px solid var(--teal);
+        border-radius: 10px;
+        background: #f7fbfc;
+        color: #3b322b;
+      }
+
+      .flow {
+        display: grid;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .num {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--teal-soft);
+        color: var(--teal);
+        font-weight: 700;
+      }
+
+      .tree {
+        display: grid;
+        gap: 14px;
+      }
+
+      .tree-root {
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .tree-grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .branch {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .branch ul {
+        padding-left: 1.15em;
+      }
+
+      .matrix {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 860px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .refs {
+        list-style: none;
+        padding: 0;
+      }
+
+      .refs li {
+        padding: 12px 0;
+        border-top: 1px solid #ece3d8;
+      }
+
+      .refs li:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: #f5efe6;
+        font-size: 0.92em;
+      }
+
+      @media (max-width: 720px) {
+        .hero,
+        .section {
+          padding: 22px 18px;
+        }
+
+        .probe-head,
+        .probe-body {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+
+        .step {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero stack">
+        <div class="eyebrow">Probe Playbook</div>
+        <h1>Probe を根にした分岐設計</h1>
+        <p class="lead">
+          今回の目的は、Seed の種類ごとの分岐ではなく、
+          <strong>各 Probe ごとにどんな深掘り分岐が存在するか</strong> を可視化すること。
+          Seed は入口の違いとして残しつつ、深掘り本体は Probe を根にした playbook として持つ。
+          React Flow では、この playbook を木として表示することを想定する。
+        </p>
+        <div class="meta">
+          <span class="chip">Probe-first</span>
+          <span class="chip">React Flow 向きの tree</span>
+          <span class="chip">共通分岐 + probe 固有の質問例</span>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>前提整理</h2>
+        <div class="quote">
+          深掘りの本体を決めるのは <code>SeedType</code> ではなく
+          <code>Probe</code> である。<code>Question / Idea / Anomaly</code> の違いは入口の違いに近く、
+          一度掘り始めたら、工程・材料・身体などの共通 Probe でかなり同じように扱える。
+        </div>
+        <div class="grid three">
+          <article class="card stack">
+            <h4>SeedType</h4>
+            <p>何から始まったか。問い、思いつき、違和感の違い。</p>
+          </article>
+          <article class="card stack">
+            <h4>Probe</h4>
+            <p>何について掘るか。工程、材料、身体、環境などの観点。</p>
+          </article>
+          <article class="card stack">
+            <h4>Branch</h4>
+            <p>その Probe で次に何を確かめるか。特定、差分、変化、判断基準など。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>共通の分岐テンプレ</h2>
+        <p>
+          各 Probe に対して、まずは次の 6 分岐を共通テンプレとして持つのがよい。
+          これは質問文の違いではなく、<strong>何の操作をかけるか</strong> の違いである。
+        </p>
+        <div class="grid six">
+          <article class="card stack">
+            <span class="tag shared">1. 特定</span>
+            <p>何のことか、どの場面か、どの対象かを固定する。</p>
+          </article>
+          <article class="card stack">
+            <span class="tag shared">2. 差分</span>
+            <p>いつもと何が違うか、予想と何が違うかを見る。</p>
+          </article>
+          <article class="card stack">
+            <span class="tag shared">3. 変化</span>
+            <p>前後でどう変わったか、途中で切り替わったかを見る。</p>
+          </article>
+          <article class="card stack">
+            <span class="tag shared">4. 判断基準</span>
+            <p>何を見て OK / NG / 危険 と見ていたかを掘る。</p>
+          </article>
+          <article class="card stack">
+            <span class="tag shared">5. 影響</span>
+            <p>その要因が結果や次の操作にどう効いたかを見る。</p>
+          </article>
+          <article class="card stack">
+            <span class="tag shared">6. 移送</span>
+            <p><code>problem</code>、<code>mismatch</code>、別 Probe への次遷移を決める。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>React Flow に載せる最小形</h2>
+        <div class="flow">
+          <article class="step">
+            <div class="num">1</div>
+            <div class="stack">
+              <h3>Probe Root</h3>
+              <p>例: <code>工程 / タイミング</code>, <code>材料</code>, <code>身体 / 操作</code>。</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">2</div>
+            <div class="stack">
+              <h3>共通 Branch</h3>
+              <p>
+                <code>特定</code>, <code>差分</code>, <code>変化</code>, <code>判断基準</code>, <code>影響</code>, <code>移送</code>
+                を 1 層目に置く。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">3</div>
+            <div class="stack">
+              <h3>質問例 / 取得したい情報</h3>
+              <p>
+                各 branch の下に、具体的な質問例や観察対象を leaf として置く。
+              </p>
+            </div>
+          </article>
+        </div>
+        <div class="callout primary stack">
+          <p>
+            最初は DAG や表より、
+            <strong>Probe ごとの独立した tree</strong> として見せる方が実装も理解も単純である。
+          </p>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>例 1: 工程 / タイミング Probe</h2>
+        <article class="probe process">
+          <div class="probe-head stack">
+            <span class="tag process">工程 / タイミング</span>
+            <h3>どの処理の時だったか、どの順番だったか、どの切り替わり点だったかを掘る</h3>
+          </div>
+          <div class="probe-body">
+            <div class="tree">
+              <div class="tree-root stack">
+                <h4>Root</h4>
+                <p>工程 / タイミング</p>
+              </div>
+              <div class="tree-grid">
+                <article class="branch stack">
+                  <h4>特定</h4>
+                  <ul>
+                    <li>どの工程の時だったか</li>
+                    <li>前後どの作業の間だったか</li>
+                    <li>開始直後か、終盤か、切り返し前後か</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>差分</h4>
+                  <ul>
+                    <li>いつもの順番と何が違ったか</li>
+                    <li>予想していたタイミングとの差は何か</li>
+                    <li>本来ここで起きるはずのことは何か</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>変化</h4>
+                  <ul>
+                    <li>どの瞬間で様子が変わったか</li>
+                    <li>途中で手順を変えたか</li>
+                    <li>どこが境目だったか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>判断基準</h4>
+                  <ul>
+                    <li>次の工程へ進めると何で判断したか</li>
+                    <li>まだ早い / 遅いを何で見ていたか</li>
+                    <li>タイミングの良し悪しを何で見ていたか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>影響</h4>
+                  <ul>
+                    <li>そのタイミングの違いで何が起きたか</li>
+                    <li>後続工程にどう影響したか</li>
+                    <li>その時点で戻せたのか、戻せなかったのか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>移送</h4>
+                  <ul>
+                    <li>手順理解の <code>problem</code> へ進む</li>
+                    <li>工程間のズレとして <code>mismatch</code> へ進む</li>
+                    <li>別 Probe として材料や身体へ移る</li>
+                  </ul>
+                </article>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section stack">
+        <h2>例 2: 材料 Probe</h2>
+        <article class="probe material">
+          <div class="probe-head stack">
+            <span class="tag material">材料</span>
+            <h3>対象の材質、状態、個体差、条件差がどう効いたかを掘る</h3>
+          </div>
+          <div class="probe-body">
+            <div class="tree">
+              <div class="tree-root stack">
+                <h4>Root</h4>
+                <p>材料</p>
+              </div>
+              <div class="tree-grid">
+                <article class="branch stack">
+                  <h4>特定</h4>
+                  <ul>
+                    <li>何の材料だったか</li>
+                    <li>材質、太さ、状態はどうだったか</li>
+                    <li>いつも使うものと同じだったか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>差分</h4>
+                  <ul>
+                    <li>いつもの材料と何が違ったか</li>
+                    <li>予想していた材料特性との差は何か</li>
+                    <li>個体差はあったか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>変化</h4>
+                  <ul>
+                    <li>途中で状態は変わったか</li>
+                    <li>温度や湿り気で変化したか</li>
+                    <li>作業中に抵抗感や見え方が変わったか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>判断基準</h4>
+                  <ul>
+                    <li>その材料状態を何で見分けたか</li>
+                    <li>良い / 危ないを何で判断したか</li>
+                    <li>触感、見た目、音などの手がかりは何か</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>影響</h4>
+                  <ul>
+                    <li>材料差が結果にどう効いたか</li>
+                    <li>操作の仕方を変える必要があったか</li>
+                    <li>別の手順や道具選択に影響したか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>移送</h4>
+                  <ul>
+                    <li>材料理解の <code>problem</code> へ進む</li>
+                    <li>材料差の説明不能点を <code>mismatch</code> にする</li>
+                    <li>身体 / 道具 Probe へ横移動する</li>
+                  </ul>
+                </article>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section stack">
+        <h2>例 3: 身体 / 操作 Probe</h2>
+        <article class="probe body">
+          <div class="probe-head stack">
+            <span class="tag body">身体 / 操作</span>
+            <h3>姿勢、力加減、手順、感覚、操作の切り替えを掘る</h3>
+          </div>
+          <div class="probe-body">
+            <div class="tree">
+              <div class="tree-root stack">
+                <h4>Root</h4>
+                <p>身体 / 操作</p>
+              </div>
+              <div class="tree-grid">
+                <article class="branch stack">
+                  <h4>特定</h4>
+                  <ul>
+                    <li>どの姿勢、どの持ち方、どの手順だったか</li>
+                    <li>どの動作をしていた瞬間か</li>
+                    <li>どの部位に意識を置いていたか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>差分</h4>
+                  <ul>
+                    <li>いつもの動かし方と何が違ったか</li>
+                    <li>予想した手応えとの差は何か</li>
+                    <li>思っていた力加減との差は何か</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>変化</h4>
+                  <ul>
+                    <li>途中で力の入り方は変わったか</li>
+                    <li>どこで手の使い方を変えたか</li>
+                    <li>身体感覚が切り替わった瞬間はどこか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>判断基準</h4>
+                  <ul>
+                    <li>うまくできている感覚を何で見ていたか</li>
+                    <li>危ないと感じる手応えは何か</li>
+                    <li>次に進める身体感覚の基準は何か</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>影響</h4>
+                  <ul>
+                    <li>その操作差で結果はどう変わったか</li>
+                    <li>他の工程や道具選択に影響したか</li>
+                    <li>やり直しや補正が必要になったか</li>
+                  </ul>
+                </article>
+                <article class="branch stack">
+                  <h4>移送</h4>
+                  <ul>
+                    <li>操作理解の <code>problem</code> へ進む</li>
+                    <li>手応えの説明不能点を <code>mismatch</code> にする</li>
+                    <li>材料 / 工程 Probe へ横移動する</li>
+                  </ul>
+                </article>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section stack">
+        <h2>表にするより tree にする理由</h2>
+        <div class="grid three">
+          <article class="card stack">
+            <h3>1. 次の聞き先が見える</h3>
+            <p>表は一覧には強いが、「次に何を聞くか」を持ちにくい。</p>
+          </article>
+          <article class="card stack">
+            <h3>2. React Flow と相性がよい</h3>
+            <p>既存実装は tree layout が前提なので、まず木として整理する方が素直。</p>
+          </article>
+          <article class="card stack">
+            <h3>3. playbook として使いやすい</h3>
+            <p>人が辿るにも、AI が follow-up を出すにも tree の方が扱いやすい。</p>
+          </article>
+        </div>
+        <div class="callout note stack">
+          <p>
+            一覧性が必要になった段階で、
+            後から <code>Probe × Branch</code> の表に変換するのは簡単だが、
+            逆はやや難しい。
+          </p>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>実装に落とすときの最小単位</h2>
+        <div class="matrix">
+          <table>
+            <thead>
+              <tr>
+                <th>レベル</th>
+                <th>React Flow 上の役割</th>
+                <th>持つ情報</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Probe Root</strong></td>
+                <td>木の親</td>
+                <td>Probe 名、説明、適用対象</td>
+              </tr>
+              <tr>
+                <td><strong>Branch Node</strong></td>
+                <td>共通分岐</td>
+                <td>特定 / 差分 / 変化 / 判断基準 / 影響 / 移送</td>
+              </tr>
+              <tr>
+                <td><strong>Leaf Node</strong></td>
+                <td>具体質問例</td>
+                <td>質問文、狙い、次に渡す先</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section stack">
+        <h2>参考にした内部資料</h2>
+        <ul class="refs">
+          <li>
+            <strong><a href="./acta_seed_discussion_outline.html">ACTA × Seed 再整理メモ</a></strong><br />
+            Seed と Probe の役割を切り分ける前提整理。
+          </li>
+          <li>
+            <strong><a href="../docs/progressive_inquiry_tree_design.html">Progressive Inquiry Tree 設計書</a></strong><br />
+            Seed を入口としつつ、problem / working theory / mismatch に進む基本スキーマ。
+          </li>
+          <li>
+            <strong><a href="./acta_paper_explainer.html">ACTA 論文解説</a></strong><br />
+            認知的に難しい箇所を起点に、手がかり・判断・初心者の失敗を掘る考え方。
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
