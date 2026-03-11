@@ -263,7 +263,8 @@ export const AdminPage = () => {
             {schema ? `${schema.label} スキーマ` : "tree"} を編集します。root ノードを管理できます。
           </p>
         </div>
-        <nav>
+        <nav className="nav-links">
+          <a href="/question-seeds">Question Seed へ</a>
           <a href="/">公開ビューへ</a>
         </nav>
       </header>

@@ -21,7 +21,8 @@ export const PublicPage = () => {
           <p className="muted">`/` は published の forest 全体を表示します。各 root は別ページで拡大表示します。</p>
           {getBackendWarning() ? <p className="badge">{getBackendWarning()}</p> : null}
         </div>
-        <nav>
+        <nav className="nav-links">
+          <a href="/question-seeds">Question Seed へ</a>
           <a href="/admin">管理画面へ</a>
         </nav>
       </header>

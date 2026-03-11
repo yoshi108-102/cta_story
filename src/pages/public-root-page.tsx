@@ -34,6 +34,7 @@ export const PublicRootPage = ({ treeId, rootId }: PublicRootPageProps) => {
         </div>
         <nav className="nav-links">
           <a href="/">全体 overview へ</a>
+          <a href="/question-seeds">Question Seed へ</a>
           <a href="/admin">管理画面へ</a>
           <button type="button" className="secondary" onClick={() => void reload()}>
             再読込
