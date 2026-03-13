@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学習者起点の振り返りワークフロー</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #efe8dc;
+        --paper: #fffdf8;
+        --ink: #1f1a16;
+        --muted: #645a4e;
+        --line: #d8ccb9;
+        --accent: #8a3b19;
+        --accent-soft: #f7e5d9;
+        --accent-deep: #6a2b11;
+        --good: #2e5d44;
+        --good-soft: #e4f0e8;
+        --warn: #865022;
+        --warn-soft: #f8ebdb;
+        --shadow: 0 18px 40px rgba(39, 29, 18, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at right top, rgba(138, 59, 25, 0.1), transparent 24%),
+          radial-gradient(circle at left 10% top 12%, rgba(46, 93, 68, 0.08), transparent 22%),
+          linear-gradient(180deg, #e9dfd1 0, var(--bg) 280px);
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        line-height: 1.76;
+      }
+
+      .page {
+        width: min(1140px, calc(100% - 32px));
+        margin: 24px auto 56px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 32px;
+      }
+
+      .section {
+        padding: 26px 28px;
+        margin-top: 18px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.3;
+      }
+
+      h1 {
+        margin-top: 12px;
+        font-size: clamp(30px, 4vw, 46px);
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h2 {
+        margin-bottom: 14px;
+        font-size: 25px;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      p,
+      ul,
+      ol {
+        margin: 0;
+      }
+
+      p + p,
+      p + ul,
+      p + ol,
+      ul + p,
+      ol + p,
+      .stack > * + * {
+        margin-top: 10px;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2em;
+      }
+
+      li + li {
+        margin-top: 7px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-deep);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        margin-top: 16px;
+        max-width: 74ch;
+        color: var(--muted);
+      }
+
+      .key-line {
+        margin-top: 20px;
+        padding: 14px 16px;
+        border-left: 4px solid var(--accent);
+        border-radius: 16px;
+        background: linear-gradient(135deg, #fff7f2, #fff);
+        font-weight: 700;
+      }
+
+      .meta {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .meta span {
+        padding: 5px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .card.soft {
+        background: #fbf6ef;
+      }
+
+      .card.good {
+        background: linear-gradient(135deg, #f5fbf6, #fff);
+        border-color: #c8dccd;
+      }
+
+      .card.warn {
+        background: linear-gradient(135deg, #fff8f0, #fff);
+        border-color: #e5ceb3;
+      }
+
+      .label {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-deep);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .workflow {
+        display: grid;
+        gap: 14px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 74px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .step-no {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        border-radius: 14px;
+        background: var(--accent-soft);
+        color: var(--accent-deep);
+        font-weight: 700;
+      }
+
+      .columns {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+      }
+
+      .memo {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+        overflow: hidden;
+      }
+
+      .memo-header {
+        padding: 14px 16px;
+        background: #f7f1e8;
+        border-bottom: 1px solid var(--line);
+        font-weight: 700;
+      }
+
+      .memo-body {
+        padding: 16px;
+      }
+
+      .memo-item + .memo-item {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #ebe0d1;
+      }
+
+      .memo-item strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .footer-note {
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 780px) {
+        .page {
+          width: min(100%, calc(100% - 20px));
+          margin: 12px auto 32px;
+        }
+
+        .hero,
+        .section {
+          border-radius: 20px;
+        }
+
+        .hero {
+          padding: 24px;
+        }
+
+        .section {
+          padding: 22px 18px;
+        }
+
+        .columns,
+        .step {
+          grid-template-columns: 1fr;
+        }
+
+        .step-no {
+          min-height: auto;
+          width: fit-content;
+          padding: 10px 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">Learner-first Workflow</span>
+        <h1>新人が作業後に自分の理解を内省するための、学習者起点ワークフロー</h1>
+        <p class="lead">
+          やりたいことは、熟練者の知識をいきなり抽出することではなく、まず新人が
+          <strong>「何が気になったのか」「何がまだ腑に落ちていないのか」</strong>
+          を作業直後に言葉へ近づけられる状態をつくること。その入口として、自由記述ではなく
+          <strong>AIとの対話を通じた振り返り</strong> を使う。
+        </p>
+        <div class="key-line">
+          到達点は、新人が自分の引っかかりを自覚し、熟練者に話を聞きに行ける段階まで整理できること。
+        </div>
+        <div class="meta">
+          <span>対象: 新人</span>
+          <span>タイミング: 作業直後</span>
+          <span>主な焦点: 状況と疑問</span>
+          <span>手段: AIとの短い対話</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>1. 何を実現したいのか</h2>
+        <div class="grid three">
+          <article class="card soft">
+            <div class="label">起点</div>
+            <p>
+              新人に思い返してほしいのは、作業の正解ではなく、
+              <strong>気になったこと、思ったこと、引っかかった瞬間</strong>。
+            </p>
+          </article>
+          <article class="card">
+            <div class="label">支援の形</div>
+            <p>
+              言語化が難しい前提を置き、自由記述ではなく
+              <strong>問いに答える形の対話</strong>
+              で振り返りを進める。
+            </p>
+          </article>
+          <article class="card good">
+            <div class="label">成功状態</div>
+            <p>
+              気になったことが、自分の中で
+              <strong>ある程度腑に落ちるところまで整理されている</strong>
+              状態に到達する。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>2. このワークフローが扱う場面</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>前提にしている状況</h3>
+            <ul>
+              <li>対象は現場に入ったばかりの新人。</li>
+              <li>振り返りは作業が終わった直後に行う。</li>
+              <li>特に思い返したいのは、そのときの状況と疑問。</li>
+              <li>新人はまだ「何を聞けばいいか」が曖昧でもよい。</li>
+            </ul>
+          </article>
+          <article class="card warn">
+            <h3>避けたい状態</h3>
+            <ul>
+              <li>AIの質問が多すぎて、新人の思考より会話対応が主タスクになる。</li>
+              <li>正しく答えることが目的化し、違和感そのものが捨てられる。</li>
+              <li>整理より先に結論を急ぎ、腑に落ちないまま終わる。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>3. 想定する対話フロー</h2>
+        <div class="workflow">
+          <article class="step">
+            <div class="step-no">Step 1</div>
+            <div class="stack">
+              <h3>気になったことを思い出す</h3>
+              <p>
+                AIはまず、「何が気になったか」「何を思ったか」を起点に問いを置く。最初から整った説明を求めず、断片的な発話でも受け止める。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="step-no">Step 2</div>
+            <div class="stack">
+              <h3>状況に引き戻す</h3>
+              <p>
+                発話が曖昧でも、そのとき何をしていたか、どの場面だったか、何が目に入っていたかを軽く確認し、
+                <strong>疑問が生まれた文脈</strong> を回収する。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="step-no">Step 3</div>
+            <div class="stack">
+              <h3>引っかかりの輪郭を整える</h3>
+              <p>
+                AIは「つまりこういう引っかかりかもしれない」と短く言い換え、新人の認識とズレていないかを確かめる。ここでは深掘りより
+                <strong>腑に落ちる言い換え</strong> を優先する。
+              </p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="step-no">Step 4</div>
+            <div class="stack">
+              <h3>未整理な論点を残す</h3>
+              <p>
+                最後に「今はここがまだ曖昧」と残せれば十分。熟練者に聞く質問を必ず完成させる必要はないが、
+                <strong>何が腑に落ちていないか</strong> が見えている状態にはしたい。
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>4. 現状の課題</h2>
+        <div class="grid three">
+          <article class="card warn">
+            <div class="label">最大の課題</div>
+            <p>
+              いま一番定まっていないのは、
+              <strong>AIがどんな問いをどう置くか</strong>
+              というワークフローの中身である。
+            </p>
+          </article>
+          <article class="card">
+            <div class="label">現時点の境界</div>
+            <p>
+              ひとまず目指したいのは、新人が
+              <strong>気になったことを出し、そのときの状況を整理するところまで</strong>
+              でよい、というラインである。
+            </p>
+          </article>
+          <article class="card soft">
+            <div class="label">まだ見えていないこと</div>
+            <ul>
+              <li>どんな問いの要素が必要なのか。</li>
+              <li>どの順番なら自然に話しやすいのか。</li>
+              <li>どこまで整理できれば十分なのか。</li>
+            </ul>
+          </article>
+        </div>
+        <div class="grid two" style="margin-top: 16px;">
+          <article class="card warn">
+            <h3>なぜ難しいのか</h3>
+            <p>
+              問いの型を決めれば運用しやすくなる一方で、型が強すぎると
+              <strong>新人の発想や違和感の出方そのものを制限してしまう</strong>
+              おそれがある。今回外したくないのはこの点であり、ワークフロー設計は
+              「支援のための構造化」と「発想を縛らない余白」の両立を求められる。
+            </p>
+          </article>
+          <article class="card">
+            <h3>いま困っていること</h3>
+            <p>
+              つまり、ワークフローを作らないと実装や検証に進めないが、
+              ワークフローを作るほどコンセプトから遠ざかる感覚がある。現状は、
+              <strong>必要な問いの要素をどう定義すれば、誘導ではなく支援になるのか</strong>
+              の判断基準がまだない。
+            </p>
+          </article>
+        </div>
+        <div class="grid two" style="margin-top: 16px;">
+          <article class="card warn">
+            <h3>CTA系の問いとのずれ</h3>
+            <p>
+              これまでCTAの手法もいくつか調べて試してきたが、たとえば
+              <strong>「どういう状況でそうなったのか」</strong>
+              のように状況説明を先に求める問いは、こちらが知りたい枠組みへ発話を寄せる力が強い。
+              そのため、新人の中にまだ曖昧にある違和感や気づきを拾うという今回の目的とは、
+              うまく合致しない感覚がある。
+            </p>
+          </article>
+          <article class="card soft">
+            <h3>ここで起きているねじれ</h3>
+            <p>
+              CTAは本来、経験を構造化して分析するには有効だが、今回ほしいのは
+              <strong>構造化の前にある、まだ言葉になっていない引っかかり</strong>
+              へのアクセスである。だから、
+              状況整理を早く求めるほど、知りたいものが先に削れてしまう可能性がある。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>5. AIに期待する役割</h2>
+        <div class="grid three">
+          <article class="card">
+            <div class="label">役割 1</div>
+            <p>
+              新人の雑多な気づきを消さずに拾い、
+              <strong>話し始めるきっかけ</strong> をつくる。
+            </p>
+          </article>
+          <article class="card">
+            <div class="label">役割 2</div>
+            <p>
+              発話を短く整え、
+              <strong>本人が「それです」と言える表現</strong>
+              に近づける。
+            </p>
+          </article>
+          <article class="card good">
+            <div class="label">役割 3</div>
+            <p>
+              熟練者との対話の前段として、
+              <strong>未整理な論点を見える形に残す</strong>。
+            </p>
+          </article>
+        </div>
+        <p class="footer-note">
+          逆に、AIが結論を教えすぎたり、問いを増やしすぎたりすると、このワークフローではノイズになりやすい。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>6. 最小のメモ形式</h2>
+        <div class="columns">
+          <div class="memo">
+            <div class="memo-header">熟練者にも見せられる最低限の記録</div>
+            <div class="memo-body">
+              <div class="memo-item">
+                <strong>作業内容</strong>
+                <p>何の作業をしていたか。どの場面の振り返りか。</p>
+              </div>
+              <div class="memo-item">
+                <strong>気になった点・思ったこと</strong>
+                <p>違和感、迷い、ひっかかり、うまく言えない感覚も含めて残す。</p>
+              </div>
+              <div class="memo-item">
+                <strong>まだ腑に落ちていない点</strong>
+                <p>今の理解で止まっている場所。必要なら、ここから熟練者に聞きたいことへ展開する。</p>
+              </div>
+            </div>
+          </div>
+          <article class="card soft">
+            <h3>この形式でよい理由</h3>
+            <ul>
+              <li>最初から完成度の高い質問文を求めなくてよい。</li>
+              <li>新人の内省と、熟練者との次の対話の両方に接続できる。</li>
+              <li>将来ワークフローを拡張するときのログ基盤にもなる。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>7. この構想の評価軸</h2>
+        <div class="grid two">
+          <article class="card good">
+            <h3>うまく機能している状態</h3>
+            <ul>
+              <li>新人が自分の引っかかりを少しでも説明できる。</li>
+              <li>「わからない」が、状況つきの未整理論点として残る。</li>
+              <li>熟練者に話を聞きに行くための土台ができる。</li>
+            </ul>
+          </article>
+          <article class="card warn">
+            <h3>うまく機能していない状態</h3>
+            <ul>
+              <li>AIとの対話が新人にとって追加の負荷になる。</li>
+              <li>質問が細かすぎて、考えるより答えることに集中してしまう。</li>
+              <li>本人の感覚より、AIの整理のほうが前に出てしまう。</li>
+            </ul>
+          </article>
+        </div>
+        <p class="footer-note">
+          したがって、このワークフローでは情報量よりも、
+          <strong>短い対話で本人の感覚が少し整うこと</strong>
+          を優先する。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

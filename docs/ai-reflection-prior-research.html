@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI内省支援の先行研究メモ</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f1eadf;
+        --paper: #fffdf8;
+        --ink: #1f1a16;
+        --muted: #645a4f;
+        --line: #d9cdbd;
+        --accent: #8a3b20;
+        --accent-soft: #f8e6dc;
+        --accent-deep: #692612;
+        --teal: #2f6056;
+        --teal-soft: #e2efeb;
+        --warn: #8b5a1f;
+        --warn-soft: #f8eddc;
+        --shadow: 0 18px 38px rgba(37, 28, 18, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at right top, rgba(138, 59, 32, 0.1), transparent 24%),
+          radial-gradient(circle at left 8% top 14%, rgba(47, 96, 86, 0.08), transparent 22%),
+          linear-gradient(180deg, #e8ddd0 0, var(--bg) 300px);
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+        line-height: 1.78;
+      }
+
+      a {
+        color: var(--teal);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .page {
+        width: min(1160px, calc(100% - 32px));
+        margin: 24px auto 56px;
+      }
+
+      .hero,
+      .section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 32px;
+      }
+
+      .section {
+        margin-top: 18px;
+        padding: 26px 28px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.3;
+      }
+
+      h1 {
+        margin-top: 12px;
+        font-size: clamp(30px, 4vw, 44px);
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h2 {
+        margin-bottom: 14px;
+        font-size: 24px;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      p,
+      ul,
+      ol {
+        margin: 0;
+      }
+
+      p + p,
+      p + ul,
+      p + ol,
+      ul + p,
+      ol + p,
+      .stack > * + * {
+        margin-top: 10px;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2em;
+      }
+
+      li + li {
+        margin-top: 7px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-deep);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        margin-top: 14px;
+        max-width: 78ch;
+        color: var(--muted);
+      }
+
+      .key-line {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-left: 4px solid var(--accent);
+        border-radius: 16px;
+        background: linear-gradient(135deg, #fff7f2, #fff);
+        font-weight: 700;
+      }
+
+      .meta {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .meta span {
+        padding: 5px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .card.soft {
+        background: #fbf6ef;
+      }
+
+      .card.teal {
+        background: linear-gradient(135deg, #f4fbf9, #fff);
+        border-color: #c8ddd7;
+      }
+
+      .card.warn {
+        background: linear-gradient(135deg, #fff8f0, #fff);
+        border-color: #e7d1b4;
+      }
+
+      .label {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-deep);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 860px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 14px 12px;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      tr:first-child th,
+      tr:first-child td {
+        border-top: none;
+      }
+
+      .note {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .refs {
+        display: grid;
+        gap: 12px;
+      }
+
+      .ref {
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+      }
+
+      .ref-title {
+        font-weight: 700;
+      }
+
+      .foot {
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 780px) {
+        .page {
+          width: min(100%, calc(100% - 20px));
+          margin: 12px auto 32px;
+        }
+
+        .hero,
+        .section {
+          border-radius: 20px;
+        }
+
+        .hero {
+          padding: 24px;
+        }
+
+        .section {
+          padding: 22px 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">Prior Research</span>
+        <h1>AIに何をさせるべきかを考えるための、内省支援の先行研究メモ</h1>
+        <p class="lead">
+          問いは「AIが新人から状況をうまく聞き出すにはどうするか」ではなく、
+          <strong>AIが新人のまだ言葉になっていない違和感や思考を、どう可視化できるよう支援するか</strong>
+          である。先行研究を横断すると、AIは
+          <strong>情報回収者よりも、articulation / reflection / metacognitive scaffolding の支援者</strong>
+          として設計するほうが筋がよい。
+        </p>
+        <div class="key-line">
+          結論を先に言うと、研究は「状況を先に整理させるAI」より「学習者の思考を先に外に出させるAI」を支持している。
+        </div>
+        <div class="meta">
+          <span>焦点: 学習者の内省支援</span>
+          <span>中核概念: articulation / reflection / scaffolding</span>
+          <span>補助概念: self-explanation / SRL / dialogic feedback</span>
+          <span>注記: LLM固有の実証はまだ新しい</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>1. 先に結論</h2>
+        <div class="grid three">
+          <article class="card teal">
+            <div class="label">研究全体の方向</div>
+            <p>
+              強いのは、<strong>学習者の思考を見えるようにする支援</strong>。弱いのは、
+              最初から正確な状況再構成を求める支援。
+            </p>
+          </article>
+          <article class="card">
+            <div class="label">AIに向く役割</div>
+            <p>
+              説明・診断・要約の前に、
+              <strong>問い返し、言い換え、比較、自己説明の促進</strong>
+              を担わせる。
+            </p>
+          </article>
+          <article class="card warn">
+            <div class="label">注意点</div>
+            <p>
+              足場かけは有効だが、強すぎる構造化は
+              <strong>自由度や没入感を下げる</strong>
+              こともある。設計のしすぎは逆効果になりうる。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>2. 主要な研究の流れ</h2>
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>研究の流れ</th>
+              <th>何が言われているか</th>
+              <th>今回の構想への含意</th>
+            </tr>
+            <tr>
+              <td><strong>認知的徒弟制</strong></td>
+              <td>
+                思考は意図的に表面化される必要があり、教師の思考だけでなく
+                <strong>学習者の思考も教師に見える必要がある</strong>。中核実践として
+                articulation, reflection, exploration が置かれる。
+              </td>
+              <td>
+                AIは「何が起きたか」の調査員ではなく、
+                <strong>学習者が自分の考えを言葉にし、見返せる状態をつくる支援者</strong>
+                に寄せるべき。
+              </td>
+            </tr>
+            <tr>
+              <td><strong>自己説明研究</strong></td>
+              <td>
+                学習者に自分で説明させるだけでも理解が深まる。説明を与えるより、
+                <strong>自分でつなげて考えさせること</strong> が効く場面がある。
+              </td>
+              <td>
+                AIは最初から整理済みのフレームを押しつけるより、
+                <strong>本人の自己説明を少しずつ引き出す短い問い</strong>
+                を置くほうがよい。
+              </td>
+            </tr>
+            <tr>
+              <td><strong>チュータリング研究</strong></td>
+              <td>
+                一方向の説明より、<strong>prompt を使った相互作用的な対話</strong>
+                でも学習は成立する。学習者側の構成活動が重要になる。
+              </td>
+              <td>
+                AIは「教える」より「促す」を中心にする。特に作業直後の振り返りでは、
+                まず引っかかりを出させる役割が優先される。
+              </td>
+            </tr>
+            <tr>
+              <td><strong>メタ認知的足場かけ</strong></td>
+              <td>
+                足場かけには、直接手順を与える structuring と、
+                <strong>学習者自身のメタ認知活動を引き出す problematizing</strong>
+                がある。後者は能動的な関与を生みやすい。
+              </td>
+              <td>
+                今回のAIは、状況整理テンプレートを先に与えるより、
+                <strong>「それって何が引っかかった感じ？」と本人に輪郭化させる</strong>
+                方向が近い。
+              </td>
+            </tr>
+            <tr>
+              <td><strong>自己調整学習支援</strong></td>
+              <td>
+                ITSやメタ認知支援ツールは、計画・監視・自己評価のプロセスを
+                prompt と feedback で支えられる。
+              </td>
+              <td>
+                作業後内省のAIも、正答提示ではなく
+                <strong>「今どこが曖昧か」を本人に見せ返す鏡</strong>
+                として設計できる。
+              </td>
+            </tr>
+            <tr>
+              <td><strong>近年のLLM対話研究</strong></td>
+              <td>
+                2025年から2026年にかけて、Socratic prompting や dialogic feedback を使う
+                LLM対話エージェントが、<strong>直接回答型より深い振り返りを支えうる</strong>
+                という結果が出始めている。
+              </td>
+              <td>
+                ただし、この文脈の実証はまだ初期段階。製造現場の新人振り返りにそのまま
+                一般化するのではなく、<strong>設計仮説として扱う</strong> のが妥当。
+              </td>
+            </tr>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>3. 今回の設計に引き寄せるとどうなるか</h2>
+        <div class="grid two">
+          <article class="card teal">
+            <h3>研究からかなり直接に言えること</h3>
+            <ul>
+              <li>AIの主目的は、学習者の思考を見えるようにすること。</li>
+              <li>最初の問いは、状況再構成より articulation を促すものがよい。</li>
+              <li>短い prompt と言い換え確認は、自己説明や振り返り支援と整合的。</li>
+              <li>一方向の評価より、対話的な feedback のほうが内省支援に向く。</li>
+            </ul>
+          </article>
+          <article class="card warn">
+            <h3>研究から見て危ない設計</h3>
+            <ul>
+              <li>最初から状況・原因・対策の欄に埋めさせること。</li>
+              <li>AIが先に理解枠組みを与え、本人の表現を早く固定すること。</li>
+              <li>問いを増やしすぎて、考えるより応答が主タスクになること。</li>
+              <li>答えや正解を早く返して、自己説明や探索を止めてしまうこと。</li>
+            </ul>
+          </article>
+        </div>
+        <p class="note">
+          ここは研究からの推論を含む。特に「状況説明は後から足せばよい」という順序づけは、
+          認知的徒弟制、自己説明、problematizing scaffolds の組み合わせから引いた設計原則である。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>4. AIに持たせるとよさそうな最小機能</h2>
+        <div class="grid three">
+          <article class="card">
+            <div class="label">Function 1</div>
+            <h3>引っかかりの起動</h3>
+            <p>
+              「何が気になった？」のように、違和感を出す入口をつくる。まだ整っていない発話を受け止める。
+            </p>
+          </article>
+          <article class="card">
+            <div class="label">Function 2</div>
+            <h3>短い言い換え</h3>
+            <p>
+              「つまりこういう感じかも」と暫定的にまとめ、本人が同意・修正できる余白を残す。
+            </p>
+          </article>
+          <article class="card">
+            <div class="label">Function 3</div>
+            <h3>自己説明の促進</h3>
+            <p>
+              断片に対して「それって何が引っかかった感じ？」と返し、本人の説明生成を手助けする。
+            </p>
+          </article>
+          <article class="card">
+            <div class="label">Function 4</div>
+            <h3>必要最小限の文脈化</h3>
+            <p>
+              状況確認は後から足す。目的は網羅的な記録ではなく、違和感が生まれた文脈を最低限つかむこと。
+            </p>
+          </article>
+          <article class="card teal">
+            <div class="label">Function 5</div>
+            <h3>未整理さの可視化</h3>
+            <p>
+              「まだここが腑に落ちていない」と残せれば十分とし、完成した質問文を必須にしない。
+            </p>
+          </article>
+          <article class="card warn">
+            <div class="label">Function 6</div>
+            <h3>過剰支援の回避</h3>
+            <p>
+              強いテンプレート、長い講義、詳細な評価を避ける。支援は小さく、反応依存にする。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>5. 先行研究から見た設計上の緊張</h2>
+        <div class="grid two">
+          <article class="card soft">
+            <h3>構造化は必要</h3>
+            <p>
+              研究は一貫して、prompt や scaffold が学習を助けうることを示している。特に初心者に対しては、
+              全くの自由対話より、ある程度の足場かけがあった方が学びが起きやすい。
+            </p>
+          </article>
+          <article class="card warn">
+            <h3>ただし強すぎると窮屈になる</h3>
+            <p>
+              近年の研究でも、高い scaffolding は概念理解を支える一方で、
+              <strong>楽しさや自由度を下げる</strong>
+              可能性が示されている。今回の違和感は、この古典的な assistance dilemma とかなり重なる。
+            </p>
+          </article>
+        </div>
+        <p class="note">
+          したがって設計課題は「構造をなくすこと」ではなく、
+          <strong>構造を前面に出しすぎず、裏側の支援に回すこと</strong>
+          だと考えるのがよい。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>6. この時点での暫定整理</h2>
+        <div class="card teal">
+          <p>
+            先行研究に照らすと、今回のAIは
+            <strong>CTA的な聞き取りエージェント</strong>
+            より、
+            <strong>認知的徒弟制における articulation / reflection を支える対話的スキャフォールド</strong>
+            として位置づけるのが自然である。
+          </p>
+          <p>
+            そのため、AIに最初にさせるべきことは「どういう状況だったか」を回収することではなく、
+            <strong>学習者が自分の引っかかりを少しでも外に出し、それを自分で見返せる形にすること</strong>
+            である。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>7. 参考文献とリンク</h2>
+        <div class="refs">
+          <article class="ref">
+            <div class="ref-title">Collins, Brown, Holum (1991) Cognitive Apprenticeship: Making Thinking Visible</div>
+            <p>
+              思考を可視化し、articulation / reflection / exploration を重視する認知的徒弟制の基本文献。
+              <a href="https://www.aft.org/ae/winter1991/collins_brown_holum" target="_blank" rel="noreferrer">American Federation of Teachers</a>
+            </p>
+          </article>
+          <article class="ref">
+            <div class="ref-title">Chi et al. (1994) Eliciting Self-Explanations Improves Understanding</div>
+            <p>
+              自己説明を促すだけで理解が深まることを示した代表的研究。
+              <a href="https://doi.org/10.1016/0364-0213(94)90016-7" target="_blank" rel="noreferrer">DOI</a>
+            </p>
+          </article>
+          <article class="ref">
+            <div class="ref-title">Chi et al. (2001) Learning from Human Tutoring</div>
+            <p>
+              説明を与えるよりも、prompt を通じた相互作用が学習を支えることを示す重要研究。
+              <a href="https://doi.org/10.1207/S15516709COG2504_1" target="_blank" rel="noreferrer">DOI</a>
+            </p>
+          </article>
+          <article class="ref">
+            <div class="ref-title">Reiser (2004) Scaffolding Complex Learning</div>
+            <p>
+              scaffolding を structuring と problematizing の2つの仕組みで整理した基礎文献。
+              <a href="https://doi.org/10.1207/s15327809jls1303_2" target="_blank" rel="noreferrer">DOI</a>
+            </p>
+          </article>
+          <article class="ref">
+            <div class="ref-title">Molenaar, van Boxtel, Sleegers (2011) Metacognitive Scaffolding in an Innovative Learning Arrangement</div>
+            <p>
+              structuring と problematizing の差を比較し、problematizing がより能動的なメタ認知活動を引き出すことを示した研究。
+              <a href="https://link.springer.com/article/10.1007/s11251-010-9154-1" target="_blank" rel="noreferrer">Springer</a>
+            </p>
+          </article>
+          <article class="ref">
+            <div class="ref-title">Borchers et al. (2025) High Scaffolding of an Unfamiliar Strategy Improves Conceptual Learning but Reduces Enjoyment</div>
+            <p>
+              scaffolding の強さは学習を助けても、自由度や楽しさを下げうることを示す近年研究。
+              <a href="https://doi.org/10.1016/j.compedu.2025.105364" target="_blank" rel="noreferrer">DOI</a>
+            </p>
+          </article>
+          <article class="ref">
+            <div class="ref-title">Daryanto et al. (2025) Conversate: Supporting Reflective Learning Through Interactive Simulation and Dialogic Feedback</div>
+            <p>
+              LLMによる一方向フィードバックではなく、dialogic feedback が反省的学習を支える可能性を示した研究。
+              <a href="https://hdl.handle.net/10919/124519" target="_blank" rel="noreferrer">VTechWorks</a>
+            </p>
+          </article>
+          <article class="ref">
+            <div class="ref-title">Xi, Zhang, Wang (2026) LLM-based Socratic Conversational Agent</div>
+            <p>
+              2026年2月の研究。Socratic prompting を用いる LLM エージェントが、非Socratic型より reflective thinking を高めたと報告。
+              <a href="https://doi.org/10.1016/j.compedu.2025.105494" target="_blank" rel="noreferrer">DOI</a>
+            </p>
+          </article>
+        </div>
+        <p class="foot">
+          注: ここでの結論は、上記文献の要点を今回の課題に引き寄せて解釈したもの。特に「製造現場の新人が作業直後にAIと振り返る」文脈そのものを直接検証した定番研究は、2026年3月12日時点ではまだ薄い。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
